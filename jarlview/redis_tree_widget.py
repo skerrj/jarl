@@ -2,10 +2,10 @@ import os
 from Tkinter import *
 import imp
 
-import TreeWidget
-from TreeWidget import TreeItem
-from TreeWidget import TreeNode
-from TreeWidget import ScrolledCanvas
+import tkjv.TreeWidget
+from tkjv.TreeWidget import TreeItem
+from tkjv.TreeWidget import TreeNode
+from tkjv.TreeWidget import ScrolledCanvas
 
 import redis_tree
 
