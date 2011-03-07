@@ -137,6 +137,7 @@ class TreeNode:
         print "in collapse...event = ", event
         if self.state != 'collapsed':
             self.state = 'collapsed'
+	    self.children = []
             self.update()
 
     def view(self):
@@ -163,6 +164,8 @@ class TreeNode:
             return self
 
     def update(self):
+	print "in update..."
+	self.item._GetSubList()
         if self.parent:
             self.parent.update()
         else:
@@ -177,13 +180,17 @@ class TreeNode:
 
     def draw(self, x, y):
         # XXX This hard-codes too many geometry constants!
+        print "in draw: ", self.item.node.id, self.item.node.data
         self.x, self.y = x, y
         self.drawicon()
         self.drawtext()
         if self.state != 'expanded':
+	    print "in draw.not_expanded"
             return y+17
         # draw children
         if not self.children:
+            print "in draw.not_self.children"
+            #self.children = []
             sublist = self.item._GetSubList()
             if not sublist:
                 # _IsExpandable() was mistaken; that's allowed
@@ -339,6 +346,7 @@ class TreeItem:
 
     def _GetSubList(self):
         """Do not override!  Called by TreeNode."""
+	print "in _GetSubList()"
         if not self.IsExpandable():
             return []
         sublist = self.GetSubList()

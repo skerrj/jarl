@@ -18,6 +18,7 @@ def redis_write(node):
  
 def redis_read(node_id):
     d = r.hget(node_id,'data')
+    print "in redis_read(node_id): ", node_id, d
     p   = int(r.hget(node_id,'pptr'))
     s   = int(r.hget(node_id,'sptr'))
     c   = int(r.hget(node_id,'cptr'))

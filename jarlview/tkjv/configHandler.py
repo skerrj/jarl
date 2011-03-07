@@ -251,7 +251,7 @@ class IdleConf:
                            ' returning default value: %r\n' %
                            (option, section, default))
                 try:
-                    sys.stderr.write(warning)
+                    None #sys.stderr.write(warning)
                 except IOError:
                     pass
             return default
@@ -363,7 +363,7 @@ class IdleConf:
                            ' returning default value: %r\n' %
                            (element, themeName, theme[element]))
                 try:
-                    sys.stderr.write(warning)
+                    None #sys.stderr.write(warning)
                 except IOError:
                     pass
             colour=cfgParser.Get(themeName,element,default=theme[element])
