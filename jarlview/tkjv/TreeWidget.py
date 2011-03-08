@@ -91,16 +91,16 @@ class TreeNode:
             return
         self.deselectall()
         self.selected = True
-        self.canvas.delete(self.image_id)
-        self.drawicon()
+        #self.canvas.delete(self.image_id)
+        #self.drawicon()
         self.drawtext()
 
     def deselect(self, event=None):
         if not self.selected:
             return
         self.selected = False
-        self.canvas.delete(self.image_id)
-        self.drawicon()
+        #self.canvas.delete(self.image_id)
+        #self.drawicon()
         self.drawtext()
 
     def deselectall(self):
@@ -182,7 +182,7 @@ class TreeNode:
         # XXX This hard-codes too many geometry constants!
         print "in draw: ", self.item.node.id, self.item.node.data
         self.x, self.y = x, y
-        self.drawicon()
+        #self.drawicon()
         self.drawtext()
         if self.state != 'expanded':
 	    print "in draw.not_expanded"
@@ -198,30 +198,35 @@ class TreeNode:
             for item in sublist:
                 child = self.__class__(self.canvas, self, item)
                 self.children.append(child)
-        cx = x+20
+        #cx = x+20
+	cx = x+5
         cy = y+17
         cylast = 0
         for child in self.children:
             cylast = cy
-            self.canvas.create_line(x+9, cy+7, cx, cy+7, fill="gray50")
+            #self.canvas.create_line(x+9, cy+7, cx, cy+7, fill="gray50")
             cy = child.draw(cx, cy)
             if child.item._IsExpandable():
                 self.drawexpandableicon(child, x, cylast)
-        id = self.canvas.create_line(x+9, y+10, x+9, cylast+7,
+        #id = self.canvas.create_line(x+9, y+10, x+9, cylast+7,
             ##stipple="gray50",     # XXX Seems broken in Tk 8.0.x
-            fill="gray50")
-        self.canvas.tag_lower(id) # XXX .lower(id) before Python 1.5.2
+            #fill="gray50")
+        #self.canvas.tag_lower(id) # XXX .lower(id) before Python 1.5.2
         return cy
     
     def drawexpandableicon(self,  child, x, cylast):
         if child.state == 'expanded':
             iconname = "minusnode"
+            icontext = '-'
             callback = child.collapse
         else:
             iconname = "plusnode"
+            icontext = '+'
             callback = child.expand
-        image = self.geticonimage(iconname)
-        id = self.canvas.create_image(x+9, cylast+7, image=image)
+        #image = self.geticonimage(iconname)
+        #id = self.canvas.create_image(x+9, cylast+7, image=image)
+        id = self.canvas.create_text(x+9, cylast+1, anchor="nw",
+                                     text=icontext)
         # XXX This leaks bindings until canvas is deleted:
         self.canvas.tag_bind(id, "<1>", callback)
         self.canvas.tag_bind(id, "<Double-1>", lambda x: None)
