@@ -18,7 +18,7 @@ def redis_write(node):
  
 def redis_read(node_id):
     d = r.hget(node_id,'data')
-    print "in redis_read(node_id): ", node_id, d
+    #print "in redis_read(node_id): ", node_id, d
     p   = int(r.hget(node_id,'pptr'))
     s   = int(r.hget(node_id,'sptr'))
     c   = int(r.hget(node_id,'cptr'))
@@ -69,14 +69,14 @@ class RedisNode:
         self.tagPtr = None 
         if ( nid == -99 ) :
             self.id = getId()
-            print "created:", self.id, self.data
+            #print "created:", self.id, self.data
             redis_write(self)
     
     def addChild(self, child): 
         child.parentPtr = self.id
         child.siblingPtr = self.childPtr
         self.childPtr = child.id
-        print "adding child", child.id, "to", self.id
+        #print "adding child", child.id, "to", self.id
         redis_write(child)
         redis_write(self)
 

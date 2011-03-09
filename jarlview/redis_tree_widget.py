@@ -32,12 +32,12 @@ class RedisItem(TreeItem):
         return self.node.childPtr != 0
         
     def GetSubList(self):
-	print "in GetSubList()..."
+	#print "in GetSubList()..."
         ns = self.getSubListHelp()
         sublist = []
         for n in ns:
             item = RedisItem(n)
-            print "in GetSubList(), adding node: ", item.node.id, item.node.data
+            #print "in GetSubList(), adding node: ", item.node.id, item.node.data
             sublist.append(item)
         return sublist
     

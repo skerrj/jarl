@@ -19,42 +19,6 @@ from Tkinter import *
 import imp
 
 import ZoomHeight
-from configHandler import idleConf
-
-ICONDIR = "Icons"
-
-# Look for Icons subdirectory in the same directory as this module
-try:
-    _icondir = os.path.join(os.path.dirname(__file__), ICONDIR)
-except NameError:
-    _icondir = ICONDIR
-if os.path.isdir(_icondir):
-    ICONDIR = _icondir
-elif not os.path.isdir(ICONDIR):
-    raise RuntimeError, "can't find icon directory (%r)" % (ICONDIR,)
-
-def listicons(icondir=ICONDIR):
-    """Utility to display the available icons."""
-    root = Tk()
-    import glob
-    list = glob.glob(os.path.join(icondir, "*.gif"))
-    list.sort()
-    images = []
-    row = column = 0
-    for file in list:
-        name = os.path.splitext(os.path.basename(file))[0]
-        image = PhotoImage(file=file, master=root)
-        images.append(image)
-        label = Label(root, image=image, bd=1, relief="raised")
-        label.grid(row=row, column=column)
-        label = Label(root, text=name)
-        label.grid(row=row+1, column=column)
-        column = column + 1
-        if column >= 10:
-            row = row+2
-            column = 0
-    root.images = images
-
 
 class TreeNode:
 
@@ -66,41 +30,24 @@ class TreeNode:
         self.selected = False
         self.children = []
         self.x = self.y = None
-        self.iconimages = {} # cache of PhotoImage instances for icons
-
+    
     def destroy(self):
         for c in self.children[:]:
             self.children.remove(c)
             c.destroy()
         self.parent = None
 
-    def geticonimage(self, name):
-        try:
-            return self.iconimages[name]
-        except KeyError:
-            pass
-        file, ext = os.path.splitext(name)
-        ext = ext or ".gif"
-        fullname = os.path.join(ICONDIR, file + ext)
-        image = PhotoImage(master=self.canvas, file=fullname)
-        self.iconimages[name] = image
-        return image
-
     def select(self, event=None):
         if self.selected:
             return
         self.deselectall()
         self.selected = True
-        #self.canvas.delete(self.image_id)
-        #self.drawicon()
         self.drawtext()
 
     def deselect(self, event=None):
         if not self.selected:
             return
         self.selected = False
-        #self.canvas.delete(self.image_id)
-        #self.drawicon()
         self.drawtext()
 
     def deselectall(self):
@@ -116,7 +63,7 @@ class TreeNode:
             child.deselecttree()
 
     def flip(self, event=None):
-        print "in flip...event = ", event
+        #print "in flip...event = ", event
         if self.state == 'expanded':
             self.collapse()
         else:
@@ -128,13 +75,13 @@ class TreeNode:
         if not self.item._IsExpandable():
             return
         if self.state != 'expanded':
-            print "in expand...event = ", event
+            #print "in expand...event = ", event
             self.state = 'expanded'
             self.update()
             self.view()
 
     def collapse(self, event=None):
-        print "in collapse...event = ", event
+        #print "in collapse...event = ", event
         if self.state != 'collapsed':
             self.state = 'collapsed'
 	    self.children = []
@@ -164,7 +111,7 @@ class TreeNode:
             return self
 
     def update(self):
-	print "in update..."
+	#print "in update..."
 	self.item._GetSubList()
         if self.parent:
             self.parent.update()
@@ -180,17 +127,13 @@ class TreeNode:
 
     def draw(self, x, y):
         # XXX This hard-codes too many geometry constants!
-        print "in draw: ", self.item.node.id, self.item.node.data
+        #print "in draw: ", self.item.node.id, self.item.node.data
         self.x, self.y = x, y
-        #self.drawicon()
         self.drawtext()
         if self.state != 'expanded':
-	    print "in draw.not_expanded"
             return y+17
         # draw children
         if not self.children:
-            print "in draw.not_self.children"
-            #self.children = []
             sublist = self.item._GetSubList()
             if not sublist:
                 # _IsExpandable() was mistaken; that's allowed
@@ -198,20 +141,14 @@ class TreeNode:
             for item in sublist:
                 child = self.__class__(self.canvas, self, item)
                 self.children.append(child)
-        #cx = x+20
 	cx = x+5
         cy = y+17
         cylast = 0
         for child in self.children:
             cylast = cy
-            #self.canvas.create_line(x+9, cy+7, cx, cy+7, fill="gray50")
             cy = child.draw(cx, cy)
             if child.item._IsExpandable():
                 self.drawexpandableicon(child, x, cylast)
-        #id = self.canvas.create_line(x+9, y+10, x+9, cylast+7,
-            ##stipple="gray50",     # XXX Seems broken in Tk 8.0.x
-            #fill="gray50")
-        #self.canvas.tag_lower(id) # XXX .lower(id) before Python 1.5.2
         return cy
     
     def drawexpandableicon(self,  child, x, cylast):
@@ -223,26 +160,11 @@ class TreeNode:
             iconname = "plusnode"
             icontext = '+'
             callback = child.expand
-        #image = self.geticonimage(iconname)
-        #id = self.canvas.create_image(x+9, cylast+7, image=image)
-        id = self.canvas.create_text(x+9, cylast+1, anchor="nw",
+        id = self.canvas.create_text(x+9, cylast, anchor="nw",
                                      text=icontext)
         # XXX This leaks bindings until canvas is deleted:
         self.canvas.tag_bind(id, "<1>", callback)
         self.canvas.tag_bind(id, "<Double-1>", lambda x: None)
-
-    def drawicon(self):
-        if self.selected:
-            imagename = (self.item.GetSelectedIconName() or
-                         self.item.GetIconName() or
-                         "openfolder")
-        else:
-            imagename = self.item.GetIconName() or "folder"
-        image = self.geticonimage(imagename)
-        id = self.canvas.create_image(self.x, self.y, anchor="nw", image=image)
-        self.image_id = id
-        self.canvas.tag_bind(id, "<1>", self.select)
-        self.canvas.tag_bind(id, "<Double-1>", self.flip)
 
     def drawtext(self):
         textx = self.x+20-1
@@ -267,11 +189,10 @@ class TreeNode:
         except AttributeError:
             # padding carefully selected (on Windows) to match Entry widget:
             self.label = Label(self.canvas, text=text, bd=0, padx=2, pady=2)
-        theme = idleConf.GetOption('main','Theme','name')
         if self.selected:
-            self.label.configure(idleConf.GetHighlight(theme, 'hilite'))
+            self.label.configure({'foreground': '#000000', 'background': 'gray'})
         else:
-            self.label.configure(idleConf.GetHighlight(theme, 'normal'))
+            self.label.configure({'foreground': '#000000', 'background': '#ffffff'})
         id = self.canvas.create_window(textx, texty,
                                        anchor="nw", window=self.label)
         self.label.bind("<1>", self.select_or_edit)
@@ -351,7 +272,7 @@ class TreeItem:
 
     def _GetSubList(self):
         """Do not override!  Called by TreeNode."""
-	print "in _GetSubList()"
+	#print "in _GetSubList()"
         if not self.IsExpandable():
             return []
         sublist = self.GetSubList()
@@ -376,53 +297,6 @@ class TreeItem:
 
     def OnDoubleClick(self):
         """Called on a double-click on the item."""
-
-
-# Example application
-
-class FileTreeItem(TreeItem):
-
-    """Example TreeItem subclass -- browse the file system."""
-
-    def __init__(self, path):
-        self.path = path
-
-    def GetText(self):
-        return os.path.basename(self.path) or self.path
-
-    def IsEditable(self):
-        return os.path.basename(self.path) != ""
-
-    def SetText(self, text):
-        newpath = os.path.dirname(self.path)
-        newpath = os.path.join(newpath, text)
-        if os.path.dirname(newpath) != os.path.dirname(self.path):
-            return
-        try:
-            os.rename(self.path, newpath)
-            self.path = newpath
-        except os.error:
-            pass
-
-    def GetIconName(self):
-        if not self.IsExpandable():
-            return "python" # XXX wish there was a "file" icon
-
-    def IsExpandable(self):
-        return os.path.isdir(self.path)
-
-    def GetSubList(self):
-        try:
-            names = os.listdir(self.path)
-        except os.error:
-            return []
-        names.sort(lambda a, b: cmp(os.path.normcase(a), os.path.normcase(b)))
-        sublist = []
-        for name in names:
-            item = FileTreeItem(os.path.join(self.path, name))
-            sublist.append(item)
-        return sublist
-
 
 # A canvas widget with scroll bars and some useful bindings
 
@@ -466,48 +340,3 @@ class ScrolledCanvas:
     def zoom_height(self, event):
         ZoomHeight.zoom_height(self.master)
         return "break"
-
-
-# Testing functions
-
-def test():
-    #import PyShell
-    #root = Toplevel(PyShell.root)
-    root = Tk()
-    root.configure(bd=0, bg="yellow")
-    root.focus_set()
-    sc = ScrolledCanvas(root, bg="white", highlightthickness=0, takefocus=1)
-    sc.frame.pack(expand=1, fill="both")
-    #item = FileTreeItem("C:/windows/desktop")
-    #item = FileTreeItem(os.curdir)
-    item = FileTreeItem("/home/skerrj/dev")  
-    node = TreeNode(sc.canvas, None, item)
-    node.expand()
-
-def test2():
-    # test w/o scrolling canvas
-    root = Tk()
-    root.configure(bd=0)
-    canvas = Canvas(root, bg="white", highlightthickness=0)
-    canvas.pack(expand=1, fill="both")
-    #item = FileTreeItem(os.curdir)
-    item = FileTreeItem("/home/skerrj/dev")
-    node = TreeNode(canvas, None, item)
-    node.update()
-    canvas.focus_set()
-
-def test3():
-    # test w/o scrolling canvas
-    root = Tk()
-    root.configure(bd=0)
-    #canvas = Canvas(root, bg="white", highlightthickness=0)
-    #canvas.pack(expand=1, fill="both")
-    canvas = ScrolledCanvas(root, bg="white", highlightthickness=0, takefocus=1)
-    canvas.frame.pack(expand=1, fill="both")
-    item = FileTreeItem(os.curdir)
-    node = TreeNode(canvas, None, item)
-    node.update()
-    canvas.focus_set()
-
-if __name__ == '__main__':
-    test()
