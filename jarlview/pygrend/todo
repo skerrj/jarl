@@ -1,0 +1,5 @@
+1) put scene graph in renderer and add query connection
+2) check fps and cycles per second for both view and control
+3) make scene graph a redis database
+4) some sort of shared memory scene graph?
+5) stream scene graph to render
