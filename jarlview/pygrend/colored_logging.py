@@ -70,7 +70,8 @@ class ColoredLogger(logging.Logger):
         return
 
 #LOG_FILENAME = os.path.join(os.path.expanduser("~"), "FoG_menu.log")
-LOG_FILENAME = "logs/PyGrenderer.log"
+#LOG_FILENAME = "logs/PyGrenderer.log"
+LOG_FILENAME = "PyGrenderer.log"
 
 def move_logs(basename, filename, d = 0):
     if d > 3:
