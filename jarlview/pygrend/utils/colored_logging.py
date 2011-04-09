@@ -54,11 +54,18 @@ class ColoredFormatter(logging.Formatter):
             record.levelname = levelname_color
         return logging.Formatter.format(self, record)
 
+
+#LOG_FILENAME = os.path.join(os.path.expanduser("~"), "FoG_menu.log")
+#LOG_FILENAME = "logs/PyGrenderer.log"
+LOG_FILENAME = "PyGrenderer.log"
+
 # Custom logger class with multiple destinations
 class ColoredLogger(logging.Logger):
     FORMAT = "[$BOLD%(name)-20s$RESET][%(levelname)-18s]  %(message)s ($BOLD%(filename)s$RESET:%(lineno)d)"
     COLOR_FORMAT = formatter_message(FORMAT, True)
     def __init__(self, name):
+        #global LOG_FILENAME
+        #LOG_FILENAME = name + '.log'
         logging.Logger.__init__(self, name, logging.DEBUG)                
 
         color_formatter = ColoredFormatter(self.COLOR_FORMAT)
@@ -68,10 +75,6 @@ class ColoredLogger(logging.Logger):
 
         self.addHandler(console)
         return
-
-#LOG_FILENAME = os.path.join(os.path.expanduser("~"), "FoG_menu.log")
-#LOG_FILENAME = "logs/PyGrenderer.log"
-LOG_FILENAME = "PyGrenderer.log"
 
 def move_logs(basename, filename, d = 0):
     if d > 3:
