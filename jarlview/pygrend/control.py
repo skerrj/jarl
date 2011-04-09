@@ -5,8 +5,14 @@
 #
 
 import sys
+import logging
 import zmq
 import pickle
+
+import utils.colored_logging
+
+log = logging.getLogger('control')
+log.info("-- Control --")
 
 import pygame
 from pygame.locals import *

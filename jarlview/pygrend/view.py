@@ -7,7 +7,7 @@ import ConfigParser
 import pickle
 import itertools
 
-import colored_logging
+import utils.colored_logging
 
 log = logging.getLogger('pygrend')
 log.info("-- PyGrenDerer --")
@@ -18,8 +18,8 @@ from pygame.locals import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
-import utils
-from utils import *
+import utils.utils
+from utils.utils import *
 
 import zmq
 
@@ -103,7 +103,7 @@ class View:
                            'pos':event.pos,
                            'rel':event.rel,
                            'button':event.buttons}
-            #print "sending mouse at (%d, %d)" % event.pos
+            log.debug( 'sending MOUSEMOTION @ (%d, %d)' % event.pos)
         elif event.type == pygame.MOUSEBUTTONUP or event.type == pygame.MOUSEBUTTONDOWN:
             zv.__dict__ = {'type':event.type,
                            'pos':event.pos,
@@ -173,9 +173,9 @@ class View:
         key = (size, bold)
         if not key in self.fonts:
             if bold:
-                font_name = 'bitstream_bold.ttf'
+                font_name = 'fonts/bitstream_bold.ttf'
             else:
-                font_name = 'bitstream.ttf'
+                font_name = 'fonts/bitstream.ttf'
             self.fonts[key] = pygame.font.Font(font_name, size)
         return self.fonts[key]
 
