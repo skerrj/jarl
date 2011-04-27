@@ -61,6 +61,7 @@ def test(node_id):
     item = RedisItem(node_id)
     node = TreeNode(sc.canvas, None, item)
     node.expand()
+    node.select()
 
 if __name__ == '__main__':
     test()

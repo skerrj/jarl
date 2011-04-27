@@ -23,14 +23,23 @@ import ZoomHeight
 class TreeNode:
 
     def __init__(self, canvas, parent, item):
-        self.canvas = canvas
-        self.parent = parent
-        self.item = item
-        self.state = 'collapsed'
-        self.selected = False
-        self.children = []
-        self.x = self.y = None
-    
+		self.canvas = canvas
+		self.parent = parent
+		self.item = item
+		self.state = 'collapsed'
+		self.selected = False
+		self.children = []
+		self.x = self.y = None
+		self.canvas.bind("<Key-Down>", self.select_next_item)
+	
+    def select_next_item(self, event=None):
+		print 'in select_next_item'
+		self.expand()
+		# if self.children != []:
+			# print 'children not empty'
+			# next_child = self.children[0]
+			# next_child.select()
+	
     def destroy(self):
         for c in self.children[:]:
             self.children.remove(c)
@@ -72,10 +81,10 @@ class TreeNode:
         return "break"
 
     def expand(self, event=None):
+        print "in expand...event = ", event
         if not self.item._IsExpandable():
             return
         if self.state != 'expanded':
-            #print "in expand...event = ", event
             self.state = 'expanded'
             self.update()
             self.view()
@@ -320,8 +329,8 @@ class ScrolledCanvas:
         self.hbar['command'] = self.canvas.xview
         self.canvas.bind("<Key-Prior>", self.page_up)
         self.canvas.bind("<Key-Next>", self.page_down)
-        self.canvas.bind("<Key-Up>", self.unit_up)
-        self.canvas.bind("<Key-Down>", self.unit_down)
+        #self.canvas.bind("<Key-Up>", self.unit_up)
+        #self.canvas.bind("<Key-Down>", self.unit_down)
         #if isinstance(master, Toplevel) or isinstance(master, Tk):
         self.canvas.bind("<Alt-Key-2>", self.zoom_height)
         self.canvas.focus_set()
