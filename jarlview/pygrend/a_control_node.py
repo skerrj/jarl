@@ -11,9 +11,6 @@ import pickle
 
 import utils.colored_logging
 
-log = logging.getLogger('acontrolnode')
-log.info("-- AControlNode --")
-
 import pygame
 from pygame.locals import *
 
@@ -38,6 +35,9 @@ class AControlNode:
         self.scene_graph = []
         self.scene_graph_command_pipe = []
         self.dragging_rect = -1
+        
+        self.log = logging.getLogger(('acontrolnode-%s'%self.node_id))
+        self.log.info(("-- AControlNode [%s]"% self.node_id))
     
     def hit_test(self):
         for i in range(len(self.scene_graph)):
@@ -56,12 +56,15 @@ class AControlNode:
     def send_message(self,  mes):
         ms = pickle.dumps(mes)
         self.scene_graph_sock.send(ms)
-    def test_commands(self):
+    def test_commands(self,  n,  m,  xi,  yi):
         view_list = []
-        view_list.append(pygrend.Zect(x=100,y=100,  text='+'))
-        view_list.append(pygrend.Zect(x=150,y=100,  text='+'))
-        view_list.append(pygrend.Zect(x=200,y=100,  text='+'))
-        view_list.append(pygrend.Zect(x=250,y=100,  text='+'))
+        x = xi
+        y = yi
+        for i in range(n):
+            yo = (i*32)
+            for j in range(m):
+                xo = (j*32)
+                view_list.append(pygrend.Zect(x=x+xo,y=y+yo,  text='+'))
         cmd = pygrend.SceneGraphSyncMessage(self.node_id, 'add', view_list=view_list)
         self.scene_graph_command_pipe.append(cmd)
         self.sync_scene_graphs()
@@ -71,6 +74,7 @@ class AControlNode:
             self.sync_scene_graphs()
         self.clean_up()
     def sync_scene_graphs(self):
+        sg_cmd_pipe_not_empty = len(self.scene_graph_command_pipe) != 0
         for i in range(len(self.scene_graph_command_pipe)):
             cmd = self.scene_graph_command_pipe.pop()
             #log.debug('sync_scene_graphs[%s]' % cmd.command)
@@ -87,7 +91,8 @@ class AControlNode:
                     self.scene_graph[cmd.index_list[i]] = cmd.view_list[i]
             else:
                 pass
-        self.send_message(pygrend.SceneGraphSyncMessage(self.node_id,  'brk'))
+        if (sg_cmd_pipe_not_empty):
+            self.send_message(pygrend.SceneGraphSyncMessage(self.node_id,  'brk'))
     def get_events(self):
         string = self.event_sock.recv()
         event = pickle.loads(string)
@@ -151,5 +156,5 @@ class AControlNode:
 if __name__ == "__main__" :
     theAControlNode = AControlNode('a1')
     #testing
-    theAControlNode.test_commands()
+    theAControlNode.test_commands(5, 20, 10, 42)
     theAControlNode.run()

@@ -49,6 +49,7 @@ class DisplayNode:
     def __init__(self):
         self.render_cnt = 0
         self.render_window = 100
+        self.pull_sg_window = 100
         self.running = True
         self.screen = None
         self.size = self.weight, self.height = None, None
@@ -62,8 +63,11 @@ class DisplayNode:
         self.height = None
         self.flags = None
         self.clock = None
+        self.clock = pygame.time.Clock()
+        self.rt = 0
+        self.pt = 0
         
-        self.context = zmq.Context()
+        self.context = zmq.Context(2)
         self.event_sock = self.context.socket(zmq.PUB)
         self.scene_graph_sock = self.context.socket(zmq.PULL)
         #self.event_sock.bind("tcp://*:5556")
@@ -136,8 +140,11 @@ class DisplayNode:
         try:
             s = self.scene_graph_sock.recv(zmq.NOBLOCK)
             cmd = pickle.loads(s)
-            while (cmd.command != 'brk'):
-                log.debug('pull_sg_updates[%s]' % cmd.command)
+            #for i in range(self.pull_sg_window):
+            cnt = 0
+            #while (cmd.command != 'brk'):
+            while (cnt<self.pull_sg_window):
+                log.debug('pull_sg_updates[%s][%s][%d]' % (cmd.node_id, cmd.command,  cnt))
                 if (cmd.command == 'add'):
                     if (not self.scene_graph.has_key(cmd.node_id)):
                         self.scene_graph[cmd.node_id] = cmd.view_list
@@ -152,8 +159,10 @@ class DisplayNode:
                         self.scene_graph[cmd.node_id][cmd.index_list[i]] = cmd.view_list[i]
                 else:
                     pass
-                s = self.scene_graph_sock.recv()
+                #s = self.scene_graph_sock.recv()
+                s = self.scene_graph_sock.recv(zmq.NOBLOCK)
                 cmd = pickle.loads(s)
+                cnt += 1
         except zmq.ZMQError:
             pass
         pygame.display.flip()
@@ -161,10 +170,11 @@ class DisplayNode:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         self.draw_background()
         self.textview()
-        log.debug('rendering')
         for id, node_sg in self.scene_graph.iteritems():
             for v in node_sg:
                 self.draw_face(v.text, v.x,  v.y)
+        self.draw_face(str(self.rt), 10, 10)
+        self.draw_face(str(self.pt), 42, 10)
         pygame.display.flip()
     def cleanup(self):
         pygame.quit()
@@ -174,8 +184,11 @@ class DisplayNode:
             self.running = False
         while( self.running ):
             for _ in itertools.repeat(None,  self.render_window):
+                self.clock.tick()
                 self.pull_sg_updates()
+                self.pt = self.clock.tick()
                 self.render() 
+                self.rt = self.clock.tick()
                 for event in pygame.event.get():
                     self.send_event(event)
             log.debug('waiting')
