@@ -239,10 +239,9 @@ class DisplayNode:
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
     def draw_face(self,  text,  x,  y):
-        fps_text = text
-        fps_surface = text_surface(fps_text, font = self.get_font(12))
-        fps_rounded_surface = rounded_border_surface(fps_surface)
-        draw_surface(fps_rounded_surface, pygame.Rect(x, self.height - y, 0, 0))
+        surface = text_surface(text, font = self.get_font(12))
+        rounded_surface = rounded_border_surface(surface)
+        draw_surface(rounded_surface, pygame.Rect(x, self.height - y, 0, 0))
     def draw_background(self):
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()

@@ -593,6 +593,7 @@ class twanderUI:
 #        print 'poll: ', POLLCNT 
         # If new dir entered via mouse, force correct activation
         if self.MouseNewDir:
+            print 'if self.MouseNewDir'
             self.DirList.activate(0)
             self.MouseNewDir = False
 
@@ -625,7 +626,7 @@ class twanderUI:
     #####
 
     def SetSelection(self, selection, active):
-
+        #print 'UI.SetSelection'
         # Clear all current selection(s)
         self.DirList.selection_clear(0, END)
 
@@ -685,6 +686,7 @@ def MouseDblClick(event):
     event.state &= ~DontCareMask                      # Kill the bits we don't care about
     
     if event.state == Button1Mask:                    # Double-Button-1 / No Modifier
+        print 'MouseDblClick.button-1.noMod'
         DirListHandler(event)                         # Execute selected item
 
     elif event.state == (Button1Mask | ControlMask):  # Control-DblButton-1
