@@ -54,10 +54,23 @@ def lookUpNode(tree,  address):
         i = address[0]
         rest = address[1:]
         return lookUpNode(tree[i].children,  rest)
-def refreshTree(tree):
+def refreshTree(tree,  last_selected_index):
     Ui.IndexMap = []
     Ui.HierList.delete(0, tk.END)
+    #scroll bar offsets
+    (sb_v_x,  sb_v_y) = Ui.vSB.get()
+    (sb_h_x,  sb_h_y) = Ui.hSB.get()
+    print 'vert sb offs: ',  sb_v_x,  sb_v_y
+    print 'horiz sb offs: ',  sb_h_x,  sb_h_y
     insertTree(tree)
+    Ui.HierList.selection_set(first = last_selected_index)
+    Ui.HierList.activate(last_selected_index)
+    Ui.vSB.set(sb_v_x,  sb_v_y)
+    Ui.hSB.set(sb_h_x,  sb_h_y)
+    (sb_v_x,  sb_v_y) = Ui.vSB.get()
+    (sb_h_x,  sb_h_y) = Ui.hSB.get()
+    print 'vert sb offs(after set): ',  sb_v_x,  sb_v_y
+    print 'horiz sb offs(after set): ',  sb_h_x,  sb_h_y
 def insertTree(tree,  i=0):
     if tree == []: return
     else:
@@ -80,25 +93,29 @@ def SetupGUi():
     #Ui.HierList.selection_set(first=0)
 #
 def onCollapse(event):
-    select_tup = Ui.GetSelection()
-    address = Ui.IndexMap[select_tup[1]]
-    print 'onCollapse',  select_tup,  address
+    #scroll_bar_vertical_offset = Ui.vSB.get()
+    data,  index = Ui.GetSelection()
+    address = Ui.IndexMap[index]
+    print 'onCollapse',  data,  index,  address
     node = lookUpNode(Ui.TreeViewModel,  address)
     if node.state != TreeState.NOTEXPANDABLE:
         node.state = TreeState.COLLAPSED
-        refreshTree(Ui.TreeViewModel)
-    Ui.HierList.selection_set(first = select_tup[1])
-    Ui.HierList.activate(select_tup[1])
+        refreshTree(Ui.TreeViewModel,  index)
+    #Ui.HierList.selection_set(first = select_tup[1])
+    #Ui.HierList.activate(select_tup[1])
+    #Ui.vSB.set(scroll_bar_vertical_offset[0],  scroll_bar_vertical_offset[1])
 def onExpand(event):
-    select_tup = Ui.GetSelection()
-    address = Ui.IndexMap[select_tup[1]]
-    print 'onExpand',  select_tup,  Ui.IndexMap[select_tup[1]]
+    #scroll_bar_vertical_offset = Ui.vSB.get()
+    data,  index = Ui.GetSelection()
+    address = Ui.IndexMap[index]
+    print 'onExpand',  data,  index,  address
     node = lookUpNode(Ui.TreeViewModel,  address)
     if node.state != TreeState.NOTEXPANDABLE:
         node.state = TreeState.EXPANDED
-        refreshTree(Ui.TreeViewModel)
-    Ui.HierList.selection_set(first = select_tup[1])
-    Ui.HierList.activate(select_tup[1])
+        refreshTree(Ui.TreeViewModel,  index)
+    #Ui.HierList.selection_set(first = select_tup[1])
+    #Ui.HierList.activate(select_tup[1])
+    #Ui.vSB.set(scroll_bar_vertical_offset[0],  scroll_bar_vertical_offset[1])
 class JarlViewHierList:
     def __init__(self, Root):
         self.hSB = tk.Scrollbar(Root, orient=tk.HORIZONTAL)
