@@ -1,0 +1,5 @@
+*.pyc
+*tmp*
+*.log*
+*.e4p
+*.eric4project

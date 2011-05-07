@@ -4,7 +4,7 @@
 import redis
 from utils.codeGen import CodeGeneratorBackend
 
-r = redis.Redis(host='localhost', port=6379, db=1)
+r = redis.Redis(host='localhost', port=6379, db=0)
 
 def getId():
     return r.incr('jvIdCnt')

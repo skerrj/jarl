@@ -10,8 +10,8 @@ class TreeState:
 class TreeViewNode:
     def __init__(self, data=''):
         self.data = data
-        self.state = TreeState.COLLAPSED
-        #self.state = TreeState.EXPANDED
+        #self.state = TreeState.COLLAPSED
+        self.state = TreeState.EXPANDED
         self.children = []
         self.address = []
 def indent(i):
@@ -58,19 +58,14 @@ def refreshTree(tree,  last_selected_index):
     Ui.IndexMap = []
     Ui.HierList.delete(0, tk.END)
     #scroll bar offsets
-    (sb_v_x,  sb_v_y) = Ui.vSB.get()
-    (sb_h_x,  sb_h_y) = Ui.hSB.get()
-    print 'vert sb offs: ',  sb_v_x,  sb_v_y
-    print 'horiz sb offs: ',  sb_h_x,  sb_h_y
+    (sb_v_i,  sb_v_j) = Ui.vSB.get()
+    (sb_h_i,  sb_h_j) = Ui.hSB.get()
     insertTree(tree)
     Ui.HierList.selection_set(first = last_selected_index)
     Ui.HierList.activate(last_selected_index)
-    Ui.vSB.set(sb_v_x,  sb_v_y)
-    Ui.hSB.set(sb_h_x,  sb_h_y)
-    (sb_v_x,  sb_v_y) = Ui.vSB.get()
-    (sb_h_x,  sb_h_y) = Ui.hSB.get()
-    print 'vert sb offs(after set): ',  sb_v_x,  sb_v_y
-    print 'horiz sb offs(after set): ',  sb_h_x,  sb_h_y
+    Ui.vSB.set(sb_v_i,  sb_v_j)
+    Ui.hSB.set(sb_h_i,  sb_h_j)
+    Ui.HierList.yview_moveto(sb_v_i)
 def insertTree(tree,  i=0):
     if tree == []: return
     else:
@@ -120,8 +115,10 @@ class JarlViewHierList:
     def __init__(self, Root):
         self.hSB = tk.Scrollbar(Root, orient=tk.HORIZONTAL)
         self.vSB = tk.Scrollbar(Root, orient=tk.VERTICAL)
+        #
         self.HierList = tk.Listbox(Root, selectmode=tk.EXTENDED, exportselection=0,
                                xscrollcommand=self.hSB.set, yscrollcommand=self.vSB.set)
+        #
         self.hSB.config(command=self.HierList.xview)
         self.hSB.pack(side=tk.BOTTOM, fill=tk.X)
         self.vSB.config(command=self.HierList.yview)
@@ -152,5 +149,11 @@ Ui.TreeViewModel = generateTree(5, 4)
 Ui.IndexMap = []
 #
 SetupGUi()
+
+#Ui.HierList.selection_set(first=25)
+#Ui.HierList.activate(55)
+#Ui.vSB.set(.03, .05)
+#Ui.HierList.yview_moveto ( .03)
+
 # Run the program interface
 Root.mainloop()
