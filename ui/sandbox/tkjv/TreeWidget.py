@@ -23,23 +23,18 @@ import ZoomHeight
 class TreeNode:
 
     def __init__(self, canvas, parent, item):
-		self.canvas = canvas
-		self.parent = parent
-		self.item = item
-		self.state = 'collapsed'
-		self.selected = False
-		self.children = []
-		self.x = self.y = None
-		self.canvas.bind("<Key-Down>", self.select_next_item)
-	
-    def select_next_item(self, event=None):
-		print 'in select_next_item'
-		self.expand()
-		# if self.children != []:
-			# print 'children not empty'
-			# next_child = self.children[0]
-			# next_child.select()
-	
+        self.canvas = canvas
+        self.parent = parent
+        self.item = item
+        self.state = 'collapsed'
+        self.selected = False
+        self.children = []
+        self.x = self.y = None
+        #self.canvas.bind("<Key-Down>", self.select_next_item)
+        #
+#    def select_next_item(self, event=None):
+#        print 'in select_next_item'
+#        self.expand()
     def destroy(self):
         for c in self.children[:]:
             self.children.remove(c)
@@ -51,6 +46,7 @@ class TreeNode:
             return
         self.deselectall()
         self.selected = True
+        print 'in select: ',  self.selected
         self.drawtext()
 
     def deselect(self, event=None):
@@ -93,8 +89,8 @@ class TreeNode:
         #print "in collapse...event = ", event
         if self.state != 'collapsed':
             self.state = 'collapsed'
-	    self.children = []
-            self.update()
+        self.children = []
+        self.update()
 
     def view(self):
         top = self.y - 2
@@ -120,8 +116,8 @@ class TreeNode:
             return self
 
     def update(self):
-	#print "in update..."
-	self.item._GetSubList()
+        print "in update..."
+        self.item._GetSubList()
         if self.parent:
             self.parent.update()
         else:
@@ -129,6 +125,7 @@ class TreeNode:
             self.canvas['cursor'] = "watch"
             self.canvas.update()
             self.canvas.delete(ALL)     # XXX could be more subtle
+            #sys.stdin.read(1)
             self.draw(7, 2)
             x0, y0, x1, y1 = self.canvas.bbox(ALL)
             self.canvas.configure(scrollregion=(0, 0, x1, y1))
@@ -150,7 +147,7 @@ class TreeNode:
             for item in sublist:
                 child = self.__class__(self.canvas, self, item)
                 self.children.append(child)
-	cx = x+5
+        cx = x+5
         cy = y+17
         cylast = 0
         for child in self.children:
@@ -179,7 +176,9 @@ class TreeNode:
         textx = self.x+20-1
         texty = self.y-1
         labeltext = self.item.GetLabelText()
+        #print 'in drawtext: ',  labeltext
         if labeltext:
+            print 'in drawtext.if.labeltext'
             id = self.canvas.create_text(textx, texty, anchor="nw",
                                          text=labeltext)
             self.canvas.tag_bind(id, "<1>", self.select)
@@ -187,6 +186,7 @@ class TreeNode:
             x0, y0, x1, y1 = self.canvas.bbox(id)
             textx = max(x1, 200) + 10
         text = self.item.GetText() or "<no text>"
+        print 'in drawtext: ',  text
         try:
             self.entry
         except AttributeError:
