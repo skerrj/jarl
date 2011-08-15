@@ -175,7 +175,8 @@ class DisplayNode:
         theFont = self.get_font(12)
         surface = theFont.render(text, True, (255, 255, 255))
         rounded_surface = rounded_border_surface(surface)
-        self.screen.blit(rounded_surface, (x, self.height - y))
+        #self.screen.blit(rounded_surface, (x, self.height - y))
+        self.screen.blit(rounded_surface, (x, y))
 
 if __name__ == "__main__" :
     theDisplayNode = DisplayNode()
