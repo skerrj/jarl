@@ -11,7 +11,8 @@ class Renderer:
         pygame.font.init()
         
         self.FONT = pygame.font.Font('fonts/bitstream.ttf', 12)
-        self.scene_graph = {}
+        #self.scene_graph = {}
+        self.scene_graph = []
         self.clock = pygame.time.Clock()
         self.SCREEN_SIZE = (800, 600)
         self.screen = pygame.display.set_mode(self.SCREEN_SIZE)
@@ -27,6 +28,7 @@ class Renderer:
     def draw_rounded_rect(self,  rect, color = (0, 0, 0, 255 * 0.8)):
         corner = 5
         rect.topleft = (0, 0)
+        #print 'draw_rounded_rect.rect.size',  rect.size
         surf = pygame.Surface(rect.size, SRCALPHA)
         # draw circles in corners
         pygame.draw.circle(surf, color, (corner, corner), corner)
@@ -38,7 +40,7 @@ class Renderer:
         surf.fill(color, pygame.Rect(0, corner, rect.width, rect.height - corner * 2))
         return surf
     
-    def draw_face(self, text,  x,  y,  w=32,  h=32):
+    def draw_view(self, text,  x,  y,  w=32,  h=32,  color = (0, 0, 0, 255 * 0.8)):
         if (text != ''):
             surface = self.FONT.render(text, True, (255, 255, 255))
             surface_rect = surface.get_rect()
@@ -49,12 +51,15 @@ class Renderer:
                 new_width = w
                 w_padding = (w/2) - round(surface_rect.width/2.0)
             rect = pygame.Rect(0, 0, new_width,  h)
-            rounded_surface = self.draw_rounded_rect(rect, color = (255, 255, 255, 255 * 0.2))
+            rounded_surface = self.draw_rounded_rect(rect, color)
             rounded_surface.blit(surface, (w_padding, h_padding))
         else:
             rect = pygame.Rect(0, 0, w, h)
-            rounded_surface = self.draw_rounded_rect(rect, color = (255, 255, 255, 255 * 0.2))
+            rounded_surface = self.draw_rounded_rect(rect, color)
         self.screen.blit(rounded_surface, (x, y))
+    
+    def renderView(self,  v):
+        self.draw_view(v.text, v.x,  v.y, v.width,  v.height,  v.color)
     
     def renderTask(self):
         while (True):
@@ -62,10 +67,12 @@ class Renderer:
             if cmd == 'render':
                 self.screen.fill((0, 0, 0))
                 self.clock.tick()
-                for id, node_sg in self.scene_graph.iteritems():
-                    for v in node_sg:
-                        self.draw_face(v.text, v.x,  v.y, v.width,  v.height)
-                self.draw_face(str(self.clock.tick()), 10, 10, w=32)
-                self.draw_face('1234567890', 42, 10)
+                #for id, node_sg in self.scene_graph.iteritems():
+                    #for v in node_sg:
+                #for v in self.scene_graph:
+                    #self.draw_view(v.text, v.x,  v.y, v.width,  v.height)
+                map(self.renderView,  self.scene_graph)
+                self.draw_view(str(self.clock.tick()), 10, 10, w=32)
+                self.draw_view('1234567890', 42, 10)
                 pygame.display.update()
     

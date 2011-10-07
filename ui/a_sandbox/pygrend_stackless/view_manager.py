@@ -37,6 +37,7 @@ class ViewManager:
             y1 = r.y
             y2 = r.y + r.height
             if x >= x1 and x <= x2 and y >= y1 and y <= y2:
+                print self.scene_graph[self.node_id][i].tag
                 return i
         return -1
     
@@ -44,10 +45,21 @@ class ViewManager:
         view_list = []
         width = self.screenSize[0]
         height = self.screenSize[1]
-        view_list.append(pygrend.Zect(x=10,y=42,  width = 250,  height = 250,  text=''))
-        view_list.append(pygrend.Zect(x=10+250,y=42,  width = 250,  height = 250,  text=''))
+        view_list.append(
+                         pygrend.Zect(x=10,y=42,  width = 250,  height = 250,  text='',  tag='slider1_l'))
+        view_list.append(
+                         pygrend.Zect(x=10+256,y=42,  width = 250,  height = 250,  text='',  tag='slider1_r'))
+        view_list.append(
+                         pygrend.Zect(x=10+251,y=42,  width = 4,  height = 250,  text='',  tag='slider1'))        
         self.scene_graph[self.node_id] = view_list
         self.renderChannel.send('render')
+    
+    def getView(self,  tag):
+        returnVal = None
+        for v in self.scene_graph[self.node_id]:
+            if (v.tag == tag):
+                returnVal = v
+        return returnVal
     
     def runTask(self):
         while( self.running ):
@@ -82,21 +94,35 @@ class ViewManager:
             self.running = False
         else:
             pass
-    
+    # xS
+    # xL, wL, xR, wR
+    # xLastLeft = xL + wL
+    # xChangeL = xS - xLastLeft
+    # wNewL = wL + xChangeL
+    # xLastRight = xR
+    # xChangeR = xLastRight - xS
+    # xNewR = xR + xChangeR
+    # wNewR = wR + (xR - xNewR)
     def on_mouse_move(self, event):
         self.lastx, self.lasty = event.pos
         if (self.dragging_rect != -1):
             v = self.scene_graph[self.node_id][self.dragging_rect]
-            v.x, v.y = event.pos
-            self.scene_graph[self.node_id][self.dragging_rect] =  v
-            self.renderChannel.send('render')
-#            
-#            v1 = self.scene_graph[self.node_id][self.dragging_rect[0]]
-#            v2 = self.scene_graph[self.node_id][self.dragging_rect[1]]
-#            x, y = event.pos
-#            self.scene_graph[self.node_id][self.dragging_rect[0]] =  v1
-#            self.scene_graph[self.node_id][self.dragging_rect[1]] =  v2
-#            self.renderChannel.send('render')
+            if (v.tag == 'slider1'):
+                v_r = self.getView('slider1_r')
+                v_l = self.getView('slider1_l')
+                xS = v.x
+                xL = v_l.x
+                wL =v_l.width
+                xR = v_r.x
+                wR = v_r.width
+                xLastLeft = xL + wL
+                xChangeL = xS - xLastLeft
+                v_l.width = wL + xChangeL
+                xLastRight = xR
+                xChangeR = xLastRight - xS
+                v_r.x = xR + xChangeR
+                v_r.width = wR + (xR - v_r.x)
+                self.renderChannel.send('render')
     
     def on_key_down(self, event):
         pass

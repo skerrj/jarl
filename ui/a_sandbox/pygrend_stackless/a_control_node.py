@@ -20,11 +20,11 @@ class AControlNode:
         self.eventChannel = eventChannel
         self.renderChannel = renderChannel
         self.dragging_rect = -1
-        self.scene_graph[self.node_id] = []
+        #self.scene_graph[self.node_id] = []
         self.running = True
     
     def hit_test(self):
-        views = self.scene_graph[self.node_id]
+        views = self.scene_graph
         for i in range(len(views)):
             r = views[i]
             x = self.lastx
@@ -48,7 +48,7 @@ class AControlNode:
             for j in range(m):
                 xo = (j*32)
                 view_list.append(pygrend.Zect(x=x+xo,y=y+yo,  text='+'))
-        self.scene_graph[self.node_id] = view_list
+        self.scene_graph += view_list
         self.renderChannel.send('render')
     
     def runTask(self):
@@ -88,9 +88,9 @@ class AControlNode:
     def on_mouse_move(self, event):
         self.lastx, self.lasty = event.pos
         if (self.dragging_rect > -1):
-            v = self.scene_graph[self.node_id][self.dragging_rect]
+            v = self.scene_graph[self.dragging_rect]
             v.x, v.y = event.pos
-            self.scene_graph[self.node_id][self.dragging_rect] =  v
+            #self.scene_graph[self.node_id][self.dragging_rect] =  v
             self.renderChannel.send('render')
     
     def on_key_down(self, event):
