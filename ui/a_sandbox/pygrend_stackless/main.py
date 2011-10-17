@@ -16,16 +16,14 @@ import view_manager
 import first_controller
 
 renderCh=stackless.channel()
+eventCh = channels.broadcast.BroadcastChannel()
+
 render = renderer.Renderer(renderCh)
 task0=stackless.tasklet(render.renderTask)()
+testing.test1(render.scene_graph,  renderCh, 5, 20, 0, 42+(12*32))
 
-test1 = testing.TestViews(render.scene_graph,  renderCh)
-test1.test_commands(5, 20, 10, 42+(5*32))
-
-eventCh = channels.broadcast.BroadcastChannel()
 task1=stackless.tasklet(events.sendEventTask)(eventCh)
-
-task2=stackless.tasklet(testing.recvEventTestTask)(eventCh,  renderCh, 'a')
+task2=stackless.tasklet(testing.recvEventTestTask)(eventCh,  renderCh)
 
 fc=first_controller.FirstContoller(render.scene_graph, eventCh,  renderCh)
 task3=stackless.tasklet(fc.runTask)()
