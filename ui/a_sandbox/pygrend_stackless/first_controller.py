@@ -68,5 +68,3 @@ class FirstContoller:
         pass
     def on_key_up(self, event):
         pass
-
-
