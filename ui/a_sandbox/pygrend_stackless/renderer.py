@@ -2,8 +2,9 @@
 #
 #
 import stackless
-#import pygame
-#from pygame.locals import *
+import channels.broadcast
+import events
+import testing
 
 import core
 
@@ -13,9 +14,18 @@ class Renderer:
         self.sg = core.SceneGraph()
         self.channel = stackless.channel()
         self.task = stackless.tasklet(self.renderTask)()
+        self.eventChannel = None
+        self.eventTask = None
+        self.InitEventTask()
     
-    def renderView(self,  v):
-        self.pg.drawView(v.text, v.x,  v.y, v.width,  v.height,  v.color)
+    def InitEventTask(self):
+        self.eventChannel = channels.broadcast.BroadcastChannel()
+        self.eventTask=stackless.tasklet(events.sendEventTask)(self.eventChannel)
+#        testTask=stackless.tasklet(testing.recvEventTestTask)(
+#                                                              self.eventChannel,  self.channel)
+    
+    def renderView(self,  z):
+        self.pg.drawView(z.text, z.pos[0],  z.pos[1], z.dims[0],  z.dims[1],  z.color)
     
     def renderTask(self):
         while (True):
