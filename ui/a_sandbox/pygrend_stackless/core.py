@@ -9,6 +9,9 @@ class SceneGraph:
         self.graph = []
     def getSceneGraph(self):
         return self.graph
+    def getView(self,  id):
+        f = lambda x: x.id == id
+        return filter(f,  self.graph)[0]
     def getViews(self,  ids):
         f = lambda x: x.id in ids
         return filter(f,  self.graph)

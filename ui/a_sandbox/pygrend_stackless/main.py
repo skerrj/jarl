@@ -13,15 +13,16 @@ v1 = view.ViewView(
                         render.channel, 
                         pygrend.Zect(id='v1',  pos=(2, 2), dims=(390, 596)))
 
-v2 = view.SliderView(
-                        render.sg, 
-                        render.channel, 
-                        pygrend.Zect(id='v2',  pos=(394, 2), dims=(12, 596)))
-
 v3 = view.ViewView(
                         render.sg, 
                         render.channel, 
                         pygrend.Zect(id='v3',  pos=(408, 2), dims=(390, 596)))
+
+v2 = view.XSliderView(
+                        render.sg, 
+                        render.channel, 
+                        pygrend.Zect(id='v2',  pos=(394, 2), dims=(12, 596)), 
+                        v1,  v3)
 
 rootView.addChild(v1)
 rootView.addChild(v2)
