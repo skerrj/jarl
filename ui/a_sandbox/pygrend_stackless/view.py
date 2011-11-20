@@ -109,13 +109,9 @@ class XSliderView(ViewView):
         if event.type == pygame.MOUSEMOTION:
             dX = event.pos[0] - self.lastx
             self.lastx, self.lasty = event.pos
-            #print ( 'slider MOUSEMOTION @ (%d, %d)' % (event.pos[0],  event.pos[1]))
             if (self.leftdown):
-                #print ( 'slider MOUSEMOTION @ (%d, %d, %d)' % (event.pos[0],  event.pos[1],  dX))
                 self.zect.pos = (self.zect.pos[0]+dX,  self.zect.pos[1])
-                #print ( 'slider leftView dims @ (%d, %d)' % (self.leftView.zect.dims))
                 self.leftView.zect.dims = (self.leftView.zect.dims[0]+dX, self.leftView.zect.dims[1])
-                #print ( 'slider leftView dims @ (%d, %d)' % (self.leftView.zect.dims))
                 self.rightView.zect.dims = (self.rightView.zect.dims[0]-dX, self.rightView.zect.dims[1])
                 self.rightView.zect.pos = (self.rightView.zect.pos[0]+dX, self.rightView.zect.pos[1])
         elif event.type == pygame.MOUSEBUTTONDOWN:
