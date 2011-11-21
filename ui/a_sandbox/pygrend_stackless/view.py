@@ -31,7 +31,7 @@ class RootView:
         event = self.eventChannel.receive()
         self.childChannel.send(event)
 
-class ViewView:
+class BaseView:
     def __init__(self, 
                  sceneGraph, 
                  renderChannel, 
@@ -92,17 +92,14 @@ class ViewView:
         self.renderChannel.send('render')
     
 
-class XSliderView(ViewView):
+class XSliderView(BaseView):
     def __init__(self, 
                  sceneGraph, 
                  renderChannel, 
-                 zect, 
-                 leftView, 
-                 rightView):
-        ViewView.__init__(self,  sceneGraph,  renderChannel,  zect)
+                 zect):
+        BaseView.__init__(self,  sceneGraph,  renderChannel,  zect)
         self.leftdown = False
-        self.leftView = leftView
-        self.rightView = rightView
+        self.announce = channels.broadcast.BroadcastChannel()
     
     def process_events(self):
         event = self.eventChannel.receive()
@@ -111,9 +108,12 @@ class XSliderView(ViewView):
             self.lastx, self.lasty = event.pos
             if (self.leftdown):
                 self.zect.pos = (self.zect.pos[0]+dX,  self.zect.pos[1])
-                self.leftView.zect.dims = (self.leftView.zect.dims[0]+dX, self.leftView.zect.dims[1])
-                self.rightView.zect.dims = (self.rightView.zect.dims[0]-dX, self.rightView.zect.dims[1])
-                self.rightView.zect.pos = (self.rightView.zect.pos[0]+dX, self.rightView.zect.pos[1])
+                self.announce.send((self.zect.id,  dX))
+#                self.leftView.zect.dims = (self.leftView.zect.dims[0]+dX, self.leftView.zect.dims[1])
+#                self.rightView.zect.dims = (self.rightView.zect.dims[0]-dX, self.rightView.zect.dims[1])
+#                self.rightView.zect.pos = (self.rightView.zect.pos[0]+dX, self.rightView.zect.pos[1])
+#                self.leftView.updateToolBar()
+#                self.rightView.updateToolBar()
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1 and self.hitTest(): # left mouse down
                 self.leftdown = True
@@ -124,3 +124,47 @@ class XSliderView(ViewView):
             pass
         self.renderChannel.send('render')
 
+class ViewView(BaseView):
+    def __init__(self, 
+                 sceneGraph, 
+                 renderChannel, 
+                 zect, 
+                 announce, 
+                 tag):
+            BaseView.__init__(self,  sceneGraph,  renderChannel,  zect)
+            self.toolBarZect = None
+            self.announce = announce
+            self.tag = tag
+            self.aTask = None
+            self.initToolBar()
+    def scheduleTask(self):
+        BaseView.scheduleTask(self)
+        self.aTask = stackless.tasklet(self.announceTask)()
+    def announceTask(self):
+        while( self.running ):
+            self.process_annoucements()
+    def process_annoucements(self):
+        cmd = self.announce.receive()
+        if cmd[0] == 'slider':
+            dX = cmd[1]
+            if self.tag == 'left':
+                self.zect.dims = (self.zect.dims[0]+dX, self.zect.dims[1])
+            else:
+                self.zect.dims = (self.zect.dims[0]-dX, self.zect.dims[1])
+                self.zect.pos = (self.zect.pos[0]+dX, self.zect.pos[1])
+            self.updateToolBar() # calls render
+    def initToolBar(self):
+        x, y = self.zect.pos
+        w, h = self.zect.dims
+        self.toolbarZect = pygrend.Zect(
+                                  id = self.zect.id + 'toolbar',
+                                  pos = (x+2, y+2), 
+                                  dims = (w-4, 12))
+        self.sceneGraph.graph.append(self.toolbarZect)
+        self.renderChannel.send('render')
+    def updateToolBar(self):
+        x, y = self.zect.pos
+        w, h = self.zect.dims
+        self.toolbarZect.pos = (x+2, y+2)
+        self.toolbarZect.dims = (w-4, 12)
+        self.renderChannel.send('render')
