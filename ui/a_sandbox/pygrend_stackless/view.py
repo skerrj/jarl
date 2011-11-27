@@ -108,6 +108,7 @@ class XSliderView(BaseView):
             self.lastx, self.lasty = event.pos
             if (self.leftdown):
                 self.zect.pos = (self.zect.pos[0]+dX,  self.zect.pos[1])
+                #self.renderChannel.send('render')
                 self.announce.send((self.zect.id,  dX))
 #                self.leftView.zect.dims = (self.leftView.zect.dims[0]+dX, self.leftView.zect.dims[1])
 #                self.rightView.zect.dims = (self.rightView.zect.dims[0]-dX, self.rightView.zect.dims[1])
@@ -122,7 +123,7 @@ class XSliderView(BaseView):
                 self.leftdown = False
         elif ( event.type == pygame.NOEVENT):
             pass
-        self.renderChannel.send('render')
+        #self.renderChannel.send('render')
 
 class ViewView(BaseView):
     def __init__(self, 
