@@ -2,7 +2,7 @@
 
 import sys
 
-import pygrend
+import core
 
 import pygame
 from pygame.locals import *
@@ -85,25 +85,34 @@ class XSliderView(BaseView):
             elif ( event.type == pygame.NOEVENT):
                 pass
 
+class ToolBar(BaseView):
+    def __init__(self, 
+                 sceneGraph, 
+                 viewZect):
+            zect = self.initToolBarZect(viewZect)
+            BaseView.__init__(self,  sceneGraph, zect)
+    
+    def initToolBarZect(self,  viewZect):
+        x, y = viewZect.pos
+        w, h = viewZect.dims
+        toolbarZect = core.Zect(
+                                  id = viewZect.id + 'toolbar',
+                                  pos = (x+2, y+2), 
+                                  dims = (w-4, 12))
+        return toolbarZect
+    
+    def updateToolBar(self,  parentViewZect):
+        x, y = parentViewZect.pos
+        w, h = parentViewZect.dims
+        self.zect.pos = (x+2, y+2)
+        self.zect.dims = (w-4, 12)
+
 class ViewView(BaseView):
     def __init__(self, 
                  sceneGraph, 
                  zect):
             BaseView.__init__(self,  sceneGraph, zect)
-            self.toolBarZect = None
-            self.initToolBar()
-    
-    def initToolBar(self):
-        x, y = self.zect.pos
-        w, h = self.zect.dims
-        self.toolbarZect = pygrend.Zect(
-                                  id = self.zect.id + 'toolbar',
-                                  pos = (x+2, y+2), 
-                                  dims = (w-4, 12))
-        self.sceneGraph.graph.append(self.toolbarZect)
+            self.toolBar = ToolBar(sceneGraph,  zect)
     
     def updateToolBar(self):
-        x, y = self.zect.pos
-        w, h = self.zect.dims
-        self.toolbarZect.pos = (x+2, y+2)
-        self.toolbarZect.dims = (w-4, 12)
+        self.toolBar.updateToolBar(self.zect)
