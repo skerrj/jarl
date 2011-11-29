@@ -11,7 +11,6 @@ class RootView:
     def __init__(self, 
                  sceneGraph):
         self.sceneGraph = sceneGraph
-        self.running = True
         self.children = []
         
     def addChild(self,  view):
@@ -28,10 +27,14 @@ class BaseView:
         self.sceneGraph = sceneGraph
         self.zect = zect
         self.lastx, self.lasty = (0, 0)
+        self.children = []
         self.initView()
         
     def initView(self):
         self.sceneGraph.graph.append(self.zect)
+    
+    def addChild(self,  view):
+        self.children.append(view)
     
     def hitTest(self):
         x = self.lastx
@@ -52,7 +55,8 @@ class BaseView:
                 self.lastx, self.lasty = event.pos
             elif ( event.type == pygame.NOEVENT):
                 pass
-    
+        for view in self.children:
+            view.handleEvents(events)
 
 class XSliderView(BaseView):
     def __init__(self, 
@@ -91,6 +95,7 @@ class ToolBar(BaseView):
                  viewZect):
             zect = self.initToolBarZect(viewZect)
             BaseView.__init__(self,  sceneGraph, zect)
+            self.leftdown = False
     
     def initToolBarZect(self,  viewZect):
         x, y = viewZect.pos
@@ -98,7 +103,8 @@ class ToolBar(BaseView):
         toolbarZect = core.Zect(
                                   id = viewZect.id + 'toolbar',
                                   pos = (x+2, y+2), 
-                                  dims = (w-4, 12))
+                                  dims = (w-4, 12), 
+                                  color=(0,0,0, 255))
         return toolbarZect
     
     def updateToolBar(self,  parentViewZect):
@@ -106,6 +112,19 @@ class ToolBar(BaseView):
         w, h = parentViewZect.dims
         self.zect.pos = (x+2, y+2)
         self.zect.dims = (w-4, 12)
+    def handleEvents(self,  events):
+        for event in events:
+            if event.type == pygame.MOUSEMOTION:
+                self.lastx, self.lasty = event.pos
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1 and self.hitTest(): # left mouse down
+                    self.leftdown = True
+                    print 'toolBar leftdown'
+            elif event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1: # left mouse up
+                    self.leftdown = False
+            elif ( event.type == pygame.NOEVENT):
+                pass
 
 class ViewView(BaseView):
     def __init__(self, 
@@ -113,6 +132,7 @@ class ViewView(BaseView):
                  zect):
             BaseView.__init__(self,  sceneGraph, zect)
             self.toolBar = ToolBar(sceneGraph,  zect)
+            self.addChild(self.toolBar)
     
     def updateToolBar(self):
         self.toolBar.updateToolBar(self.zect)
