@@ -12,7 +12,8 @@ class Zect:
                  text='', 
                  color=(255,255,255, 255*0.2), 
                  tag='', 
-                 children=[]):
+                 children=[], 
+                 parent = None):
         self.id = id
         self.pos=pos
         self.dims=dims
@@ -20,6 +21,7 @@ class Zect:
         self.color=color
         self.tag = tag
         self.children = children
+        self.parent = parent
 
 class SceneGraph:
     def __init__(self):

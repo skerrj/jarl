@@ -7,6 +7,8 @@ import core
 import pygame
 from pygame.locals import *
 
+from types import *
+
 class RootView:
     def __init__(self, 
                  sceneGraph):
@@ -39,10 +41,12 @@ class BaseView:
     def hitTest(self):
         x = self.lastx
         y = self.lasty
-        x1 = self.zect.pos[0]
-        x2 = self.zect.pos[0]+ self.zect.dims[0]
-        y1 = self.zect.pos[1]
-        y2 = self.zect.pos[1]+ self.zect.dims[1]
+        pos =self.zect.pos() if isinstance(self.zect.pos,  FunctionType) else self.zect.pos
+        dims =self.zect.dims() if isinstance(self.zect.dims,  FunctionType) else self.zect.dims
+        x1 = pos[0]
+        x2 = pos[0]+ dims[0]
+        y1 = pos[1]
+        y2 = pos[1]+ dims[1]
         if x >= x1 and x <= x2 and \
            y >= y1 and y <= y2:
             return True
@@ -78,8 +82,6 @@ class XSliderView(BaseView):
                     self.leftView.zect.dims = (self.leftView.zect.dims[0]+dX, self.leftView.zect.dims[1])
                     self.rightView.zect.dims = (self.rightView.zect.dims[0]-dX, self.rightView.zect.dims[1])
                     self.rightView.zect.pos = (self.rightView.zect.pos[0]+dX, self.rightView.zect.pos[1])
-                    self.leftView.updateToolBar()
-                    self.rightView.updateToolBar()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1 and self.hitTest(): # left mouse down
                     self.leftdown = True
@@ -92,26 +94,19 @@ class XSliderView(BaseView):
 class ToolBar(BaseView):
     def __init__(self, 
                  sceneGraph, 
-                 viewZect):
-            zect = self.initToolBarZect(viewZect)
+                 parentViewZect):
+            zect = self.initToolBarZect(parentViewZect)
             BaseView.__init__(self,  sceneGraph, zect)
             self.leftdown = False
     
-    def initToolBarZect(self,  viewZect):
-        x, y = viewZect.pos
-        w, h = viewZect.dims
+    def initToolBarZect(self,  parentViewZect):
         toolbarZect = core.Zect(
-                                  id = viewZect.id + 'toolbar',
-                                  pos = (x+2, y+2), 
-                                  dims = (w-4, 12), 
+                                  id = parentViewZect.id + 'toolbar',
+                                  pos = lambda: (parentViewZect.pos[0]+2, parentViewZect.pos[1]+2), 
+                                  dims = lambda: (parentViewZect.dims[0]-4,  12),  
                                   color=(0,0,0, 255))
         return toolbarZect
     
-    def updateToolBar(self,  parentViewZect):
-        x, y = parentViewZect.pos
-        w, h = parentViewZect.dims
-        self.zect.pos = (x+2, y+2)
-        self.zect.dims = (w-4, 12)
     def handleEvents(self,  events):
         for event in events:
             if event.type == pygame.MOUSEMOTION:

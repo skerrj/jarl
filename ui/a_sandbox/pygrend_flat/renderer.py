@@ -4,6 +4,7 @@
 import core
 import pygame
 from pygame.locals import *
+from types import *
 
 class Renderer:
     def __init__(self,  sceneGraph,  rootView):
@@ -13,7 +14,9 @@ class Renderer:
         self.running = True
         
     def renderView(self,  z):
-        self.pg.drawView(z.text, z.pos[0],  z.pos[1], z.dims[0],  z.dims[1],  z.color)
+        pos = z.pos() if isinstance(z.pos,  FunctionType) else z.pos
+        dims = z.dims() if isinstance(z.dims,  FunctionType) else z.dims
+        self.pg.drawView(z.text, pos[0],  pos[1], dims[0],  dims[1],  z.color)
     
     def render(self):
         self.pg.clearScreen()
