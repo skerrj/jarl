@@ -10,8 +10,7 @@ from pygame.locals import *
 from types import *
 
 class RootView:
-    def __init__(self, 
-                 sceneGraph):
+    def __init__(self, sceneGraph):
         self.sceneGraph = sceneGraph
         self.children = []
         
@@ -23,9 +22,7 @@ class RootView:
             view.handleEvents(events)
 
 class BaseView:
-    def __init__(self, 
-                 sceneGraph,
-                 zect):
+    def __init__(self, sceneGraph,zect):
         self.sceneGraph = sceneGraph
         self.zect = zect
         self.lastx, self.lasty = (0, 0)
@@ -63,12 +60,9 @@ class BaseView:
             view.handleEvents(events)
 
 class XSliderView(BaseView):
-    def __init__(self, 
-                 sceneGraph,
-                 zect, 
-                 views):
+    def __init__(self, sceneGraph, zect, views):
         BaseView.__init__(self,  sceneGraph, zect)
-        self.leftdown = False
+        self.leftDown = False
         self.leftView = views[0]
         self.rightView = views[1]
     
@@ -77,35 +71,59 @@ class XSliderView(BaseView):
             if event.type == pygame.MOUSEMOTION:
                 dX = event.pos[0] - self.lastx
                 self.lastx, self.lasty = event.pos
-                if (self.leftdown):
+                if (self.leftDown):
                     self.zect.pos = (self.zect.pos[0]+dX,  self.zect.pos[1])
                     self.leftView.zect.dims = (self.leftView.zect.dims[0]+dX, self.leftView.zect.dims[1])
                     self.rightView.zect.dims = (self.rightView.zect.dims[0]-dX, self.rightView.zect.dims[1])
                     self.rightView.zect.pos = (self.rightView.zect.pos[0]+dX, self.rightView.zect.pos[1])
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1 and self.hitTest(): # left mouse down
-                    self.leftdown = True
+                    self.leftDown = True
             elif event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1: # left mouse up
-                    self.leftdown = False
+                    self.leftDown = False
             elif ( event.type == pygame.NOEVENT):
                 pass
 
-class ToolBar(BaseView):
-    def __init__(self, 
-                 sceneGraph, 
-                 parentViewZect):
-            zect = self.initToolBarZect(parentViewZect)
-            BaseView.__init__(self,  sceneGraph, zect)
-            self.leftdown = False
-    
-    def initToolBarZect(self,  parentViewZect):
-        toolbarZect = core.Zect(
-                                  id = parentViewZect.id + 'toolbar',
-                                  pos = lambda: (parentViewZect.pos[0]+2, parentViewZect.pos[1]+2), 
-                                  dims = lambda: (parentViewZect.dims[0]-4,  12),  
+class Button(BaseView):
+    def __init__(self,  sceneGraph,  parentZect,  posDimsPair,  name ='button'):
+        pos = posDimsPair[0]
+        dims = posDimsPair[1]
+        zect = core.Zect(id = parentZect.id + name, 
+                                            pos = pos, 
+                                            dims = dims)
+        BaseView.__init__(self,  sceneGraph,  zect)
+        self.leftDown = False
+        self.leftClick = None
+    def handleEvents(self,  events):
+        for event in events:
+            if event.type == pygame.MOUSEMOTION:
+                self.lastx, self.lasty = event.pos
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1 and self.hitTest(): # left mouse down
+                    self.leftDown = True
+                    print self.zect.id, 'leftDown'
+            elif event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1: # left mouse up
+                    self.leftDown = False
+            elif ( event.type == pygame.NOEVENT):
+                pass
+
+class BaseToolBar(BaseView):
+    def __init__(self, sceneGraph, parentZect,  name = 'toolBar'):
+            zect = core.Zect(
+                                  id = parentZect.id + name,
+                                  pos = lambda: (parentZect.pos[0]+2, parentZect.pos[1]+2), 
+                                  dims = lambda: (parentZect.dims[0]-4,  12),  
                                   color=(0,0,0, 255))
-        return toolbarZect
+            BaseView.__init__(self,  sceneGraph, zect)
+            hPosDimsPair = (lambda: (parentZect.pos[0]+4, parentZect.pos[1]+3), (10, 10))
+            self.splitHButton = Button(sceneGraph,  zect, hPosDimsPair,  name = 'splitHButton')
+            self.addChild(self.splitHButton)
+            vPosDimsPair = (lambda: (parentZect.pos[0]+4+12, parentZect.pos[1]+3), (10, 10))
+            self.splitVButton = Button(sceneGraph,  zect, vPosDimsPair,  name = 'splitVButton')
+            self.addChild(self.splitVButton)
+            self.leftDown = False
     
     def handleEvents(self,  events):
         for event in events:
@@ -113,21 +131,18 @@ class ToolBar(BaseView):
                 self.lastx, self.lasty = event.pos
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1 and self.hitTest(): # left mouse down
-                    self.leftdown = True
-                    print 'toolBar leftdown'
+                    self.leftDown = True
+                    print self.zect.id, 'leftDown'
             elif event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1: # left mouse up
-                    self.leftdown = False
+                    self.leftDown = False
             elif ( event.type == pygame.NOEVENT):
                 pass
+        for view in self.children:
+            view.handleEvents(events)
 
 class ViewView(BaseView):
-    def __init__(self, 
-                 sceneGraph, 
-                 zect):
+    def __init__(self, sceneGraph, zect):
             BaseView.__init__(self,  sceneGraph, zect)
-            self.toolBar = ToolBar(sceneGraph,  zect)
+            self.toolBar = BaseToolBar(sceneGraph,  zect)
             self.addChild(self.toolBar)
-    
-    def updateToolBar(self):
-        self.toolBar.updateToolBar(self.zect)
