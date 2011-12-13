@@ -94,7 +94,7 @@ class Button(BaseView):
                                             dims = dims)
         BaseView.__init__(self,  sceneGraph,  zect)
         self.leftDown = False
-        self.leftClick = None
+        self.leftClick = lambda: 1
     def handleEvents(self,  events):
         for event in events:
             if event.type == pygame.MOUSEMOTION:
@@ -103,6 +103,7 @@ class Button(BaseView):
                 if event.button == 1 and self.hitTest(): # left mouse down
                     self.leftDown = True
                     print self.zect.id, 'leftDown'
+                    self.leftClick()
             elif event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1: # left mouse up
                     self.leftDown = False
@@ -142,7 +143,23 @@ class BaseToolBar(BaseView):
             view.handleEvents(events)
 
 class ViewView(BaseView):
-    def __init__(self, sceneGraph, zect):
-            BaseView.__init__(self,  sceneGraph, zect)
-            self.toolBar = BaseToolBar(sceneGraph,  zect)
-            self.addChild(self.toolBar)
+    def __init__(self, sceneGraph, zect,  rv,  sX,  b):
+        BaseView.__init__(self,  sceneGraph, zect)
+        self.toolBar = BaseToolBar(sceneGraph,  zect)
+        self.toolBar.splitHButton.leftClick = lambda: self.splitViewH()
+        self.addChild(self.toolBar)
+        self.rootView = rv
+        self.sX = sX
+        self.b = b
+    def splitViewH(self):
+        z = self.zect
+        posX,  posY = z.pos
+        dimX, dimY = z.dims
+        dimX = (dimX/2 - self.sX - self.b)
+        z.dims = (dimX,  dimY)
+        nPosX = dimX + self.sX + 3*self.b
+        rv = ViewView(
+                        self.sceneGraph, 
+                        core.Zect(id='rv',  pos=(nPosX, posY), dims=z.dims), 
+                        self.rootView,  self.sX,  self.b)
+        self.rootView.addChild(rv)
