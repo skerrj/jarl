@@ -155,9 +155,9 @@ class ViewView(BaseView):
         z = self.zect
         posX,  posY = z.pos
         dimX, dimY = z.dims
-        dimX = (dimX/2 - self.sX - self.b)
+        dimX = ((dimX+2*self.b)/2 - (self.sX/2) - (2*self.b))
         z.dims = (dimX,  dimY)
-        nPosX = dimX + self.sX + 3*self.b
+        nPosX = dimX + self.sX + 2*self.b + posX
         rv = ViewView(
                         self.sceneGraph, 
                         core.Zect(id='rv',  pos=(nPosX, posY), dims=z.dims), 

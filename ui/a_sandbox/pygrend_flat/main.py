@@ -7,8 +7,8 @@ sceneGraph = core.SceneGraph()
 rootView = view.RootView(sceneGraph)
 render = renderer.Renderer(sceneGraph,  rootView)
 
-b = 2
-sX = 12
+b = 5
+sX = 10
 (x, y) = render.pg.SCREEN_SIZE  # 800,600
 
 v1 = view.ViewView(
