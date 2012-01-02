@@ -147,6 +147,7 @@ class ViewView(BaseView):
         BaseView.__init__(self,  sceneGraph, zect)
         self.toolBar = BaseToolBar(sceneGraph,  zect)
         self.toolBar.splitHButton.leftClick = lambda: self.splitViewH()
+        self.toolBar.splitVButton.leftClick = lambda: self.splitViewV()
         self.addChild(self.toolBar)
         self.rootView = rv
         self.sX = sX
@@ -157,9 +158,21 @@ class ViewView(BaseView):
         dimX, dimY = z.dims
         dimX = ((dimX+2*self.b)/2 - (self.sX/2) - (2*self.b))
         z.dims = (dimX,  dimY)
-        nPosX = dimX + self.sX + 2*self.b + posX
+        posX = dimX + self.sX + 2*self.b + posX
         rv = ViewView(
                         self.sceneGraph, 
-                        core.Zect(id='rv',  pos=(nPosX, posY), dims=z.dims), 
+                        core.Zect(id='rv',  pos=(posX, posY), dims=z.dims), 
+                        self.rootView,  self.sX,  self.b)
+        self.rootView.addChild(rv)
+    def splitViewV(self):
+        z = self.zect
+        posX,  posY = z.pos
+        dimX, dimY = z.dims
+        dimY = ((dimY+2*self.b)/2 - (self.sX/2) - (2*self.b))
+        z.dims = (dimX,  dimY)
+        posY = dimY + self.sX + 2*self.b + posY
+        rv = ViewView(
+                        self.sceneGraph, 
+                        core.Zect(id='rv',  pos=(posX, posY), dims=z.dims), 
                         self.rootView,  self.sX,  self.b)
         self.rootView.addChild(rv)
