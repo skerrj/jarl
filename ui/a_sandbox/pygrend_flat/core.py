@@ -80,23 +80,27 @@ class PyGame:
                 filteredEvents.append(mouse_motion_events[len(mouse_motion_events)-1])
         return filteredEvents
     
-    def draw_rounded_rect(self,  rect, color = (0, 0, 0, 255 * 0.8)):
-        bg_color = (0,0,0,255)
-        #bg_color = (255,255,255,255)
-        boarder = 5
-        corner = 5
+    def draw_rounded_rect(self, 
+                          rect, 
+                          color = (0, 0, 0, 255 * 0.8),
+                          boarder = 15,
+                          boarder_color = (0,0,0,255),
+                          corner = 5):
         rect.topleft = (0, 0)
         #print 'draw_rounded_rect.rect.size',  rect.size
         #print 'draw_rounded_rect.color',  color
         surf = pygame.Surface(rect.size, SRCALPHA)
         # draw circles in corners
-        pygame.draw.circle(surf, bg_color, (corner, corner), corner)
-        pygame.draw.circle(surf, bg_color, (corner, rect.height - corner), corner)
-        pygame.draw.circle(surf, bg_color, (rect.width - corner, corner), corner)
-        pygame.draw.circle(surf, bg_color, (rect.width - corner, rect.height - corner), corner)
+        pygame.draw.circle(surf, boarder_color, (corner, corner), corner)
+        pygame.draw.circle(surf, boarder_color, (corner, rect.height - corner), corner)
+        pygame.draw.circle(surf, boarder_color, (rect.width - corner, corner), corner)
+        pygame.draw.circle(surf, 
+                           boarder_color, 
+                           (rect.width - corner, rect.height - corner), 
+                           corner)
         # draw two rect that combine to create big rect with corners cut out
-        surf.fill(bg_color, pygame.Rect(corner, 0, rect.width - corner * 2, rect.height))
-        surf.fill(bg_color, pygame.Rect(0, corner, rect.width, rect.height - corner * 2))
+        surf.fill(boarder_color, pygame.Rect(corner, 0, rect.width - corner * 2, rect.height))
+        surf.fill(boarder_color, pygame.Rect(0, corner, rect.width, rect.height - corner * 2))
         
         pygame.draw.circle(surf, color, (corner+boarder, corner+boarder), corner)
         pygame.draw.circle(surf, color, (corner+boarder, rect.height - corner - boarder), corner)
