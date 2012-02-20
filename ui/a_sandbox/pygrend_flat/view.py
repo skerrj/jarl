@@ -145,10 +145,10 @@ class BaseToolBar(BaseView):
 class ViewView(BaseView):
     def __init__(self, sceneGraph, zect,  rv,  sX,  b):
         BaseView.__init__(self,  sceneGraph, zect)
-        self.toolBar = BaseToolBar(sceneGraph,  zect)
-        self.toolBar.splitHButton.leftClick = lambda: self.splitViewH()
-        self.toolBar.splitVButton.leftClick = lambda: self.splitViewV()
-        self.addChild(self.toolBar)
+        #self.toolBar = BaseToolBar(sceneGraph,  zect)
+        #self.toolBar.splitHButton.leftClick = lambda: self.splitViewH()
+        #self.toolBar.splitVButton.leftClick = lambda: self.splitViewV()
+        #self.addChild(self.toolBar)
         self.rootView = rv
         self.sX = sX
         self.b = b

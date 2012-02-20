@@ -44,7 +44,7 @@ class PyGame:
         pygame.font.init()
         self.FONT = pygame.font.Font('fonts/bitstream.ttf', 12)
         self.clock = pygame.time.Clock()
-        self.SCREEN_SIZE = (800, 600)
+        self.SCREEN_SIZE = (800, 500)
         self.screen = pygame.display.set_mode(self.SCREEN_SIZE)
         pygame.display.set_caption('DisplayNode')
         pygame.event.set_allowed(None)
@@ -81,18 +81,42 @@ class PyGame:
         return filteredEvents
     
     def draw_rounded_rect(self,  rect, color = (0, 0, 0, 255 * 0.8)):
+        bg_color = (0,0,0,255)
+        #bg_color = (255,255,255,255)
+        boarder = 5
         corner = 5
         rect.topleft = (0, 0)
         #print 'draw_rounded_rect.rect.size',  rect.size
+        #print 'draw_rounded_rect.color',  color
         surf = pygame.Surface(rect.size, SRCALPHA)
         # draw circles in corners
-        pygame.draw.circle(surf, color, (corner, corner), corner)
-        pygame.draw.circle(surf, color, (corner, rect.height - corner), corner)
-        pygame.draw.circle(surf, color, (rect.width - corner, corner), corner)
-        pygame.draw.circle(surf, color, (rect.width - corner, rect.height - corner), corner)
-       # draw two rect that combine to create big rect with corners cut out
-        surf.fill(color, pygame.Rect(corner, 0, rect.width - corner * 2, rect.height))
-        surf.fill(color, pygame.Rect(0, corner, rect.width, rect.height - corner * 2))
+        pygame.draw.circle(surf, bg_color, (corner, corner), corner)
+        pygame.draw.circle(surf, bg_color, (corner, rect.height - corner), corner)
+        pygame.draw.circle(surf, bg_color, (rect.width - corner, corner), corner)
+        pygame.draw.circle(surf, bg_color, (rect.width - corner, rect.height - corner), corner)
+        # draw two rect that combine to create big rect with corners cut out
+        surf.fill(bg_color, pygame.Rect(corner, 0, rect.width - corner * 2, rect.height))
+        surf.fill(bg_color, pygame.Rect(0, corner, rect.width, rect.height - corner * 2))
+        
+        pygame.draw.circle(surf, color, (corner+boarder, corner+boarder), corner)
+        pygame.draw.circle(surf, color, (corner+boarder, rect.height - corner - boarder), corner)
+        pygame.draw.circle(surf, color, (rect.width - corner - boarder, corner + boarder), corner)
+        pygame.draw.circle(surf, color, 
+                           (rect.width - corner - boarder, rect.height - corner - boarder), 
+                           corner)
+
+
+        surf.fill(color, 
+                  pygame.Rect(
+                   corner+boarder, 
+                   boarder, 
+                   rect.width - (corner * 2) - (boarder * 2), 
+                   rect.height - (boarder * 2)))
+        surf.fill(color, 
+                  pygame.Rect(
+                   boarder, corner+boarder, 
+                   rect.width-(boarder*2), 
+                   rect.height - (corner * 2) - (boarder*2)))
         return surf
     
     def drawView(self, text,  x,  y,  w=32,  h=32,  color = (0, 0, 0, 255 * 0.8)):

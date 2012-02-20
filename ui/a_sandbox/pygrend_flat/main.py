@@ -12,9 +12,10 @@ sX = 10
 (x, y) = render.pg.SCREEN_SIZE  # 800,600
 
 v1 = view.ViewView(
-                        sceneGraph, 
-                        core.Zect(id='v1',  pos=(b, b), dims=(x-2*b, y-2*b)), 
-                        rootView,  sX,  b)
+    sceneGraph, 
+    #core.Zect(id='v1',  pos=(b, b), dims=(x-2*b, y-2*b)), 
+    core.Zect(id='v1',  pos=(0, 0), dims=(x, y)), 
+    rootView,  sX,  b)
 
 #v1 = view.ViewView(
 #                        sceneGraph, 
