@@ -6,11 +6,9 @@ from pygame.locals import *
 from types import *
 
 class Rect:
-    def __init__(self,
-                 pos=(0, 0),
-                 dims=(32, 32)):
-        self.pos=pos
-        self.dims=dims
+    def __init__(self):
+        self.pos=(0, 0)
+        self.dims=(32, 32)
 
 def GetRectPos(rect):
     return rect.pos() if isinstance(rect.pos,  FunctionType) else rect.pos
@@ -19,8 +17,8 @@ def GetRectDims(rect):
 def HitTest(rect,  mouse_pos):
     x = mouse_pos[0]
     y = mouse_pos[1]
-    pos =GetRectPos(view.rect)
-    dims =GetRectDims(view.rect)
+    pos =GetRectPos(rect)
+    dims =GetRectDims(rect)
     x1 = pos[0]
     x2 = pos[0]+ dims[0]
     y1 = pos[1]
@@ -32,13 +30,10 @@ def HitTest(rect,  mouse_pos):
         return False
 
 class View:
-    def __init__(self,
-                 rect = None,
-                 text='', 
-                 color=(255,255,255, 255*0.2)):
-        self.rect = rect
-        self.text = text
-        self.color=color
+    def __init__(self):
+        self.rect = None
+        self.text = ''
+        self.color=(255,255,255, 255*0.2)
     def processEvents(self,  events):
         return
 
@@ -56,7 +51,7 @@ def InitPyGame(system):
     pygame.font.init()
     system.FONT = pygame.font.Font('fonts/bitstream.ttf', 12)
     system.clock = pygame.time.Clock()
-    system.SCREEN_SIZE = (800, 500)
+    system.SCREEN_SIZE = (800, 600)
     system.screen = pygame.display.set_mode(system.SCREEN_SIZE)
     pygame.display.set_caption('DisplayNode')
     pygame.event.set_allowed(None)
@@ -96,7 +91,7 @@ def filterEvents():
 def __draw_rounded_rect( 
                       rect, 
                       color = (0, 0, 0, 255 * 0.8),
-                      boarder = 15,
+                      boarder = 5,
                       boarder_color = (0,0,0,255),
                       corner = 5):
     rect.topleft = (0, 0)
@@ -155,6 +150,7 @@ def drawView(system, view):
     system.screen.blit(rounded_surface, (x, y))
 
 # ### end PyGame interface ###
+
 # ### mainLoop helpers: Event processing and rendering ###
 # processEvents acts on sg and builds and returns flat sg of views for rendering
 def processEvents(events,  sg):
@@ -165,23 +161,15 @@ def processEvents(events,  sg):
 def render(system,  sg):
     clearScreen(system)
     clockTick(system)
-    f = lambda dic: [drawView(system,  v[0]) for (k, v) in dic.iteritems()]
-    f(sg)
+    #f = lambda dic: [drawView(system,  v[0]) for (k, v) in dic.iteritems()]
+    #f(sg)
+    for (k, v) in sg.iteritems():
+        #print k
+        drawView(system, v[0])
+        if (v[1] != []):
+            render(system,  v[1])
     updateScreen()
 # ### end Renderer ###
-DaSys = System()
-
-# sg[id]= (view, children)
-SceneGraph = dict([])
-
-# ### init
-InitPyGame(DaSys)
-
-# #######################
-v1 = View(rect = Rect(dims = (800, 500)))
-# #######################
-SceneGraph['v1']= (v1,  [])
-# #######################
 
 # ### MAIN LOOP ####
 def mainLoop(system,  sg):
@@ -193,4 +181,4 @@ def mainLoop(system,  sg):
             processEvents(events,  sg)
             render(system,  sg)
 
-mainLoop(DaSys,  SceneGraph)
+
