@@ -9,31 +9,33 @@ class Rect:
     def __init__(self):
         self.pos=(0, 0)
         self.dims=(32, 32)
-
-def GetRectPos(rect):
-    return rect.pos() if isinstance(rect.pos,  FunctionType) else rect.pos
-def GetRectDims(rect):
-    return rect.dims() if isinstance(rect.dims,  FunctionType) else rect.dims
-def HitTest(rect,  mouse_pos):
-    x = mouse_pos[0]
-    y = mouse_pos[1]
-    pos =GetRectPos(rect)
-    dims =GetRectDims(rect)
-    x1 = pos[0]
-    x2 = pos[0]+ dims[0]
-    y1 = pos[1]
-    y2 = pos[1]+ dims[1]
-    if x >= x1 and x <= x2 and \
-       y >= y1 and y <= y2:
-        return True
-    else:
-        return False
+    def GetPos(self):
+        return self.pos() if isinstance(self.pos,  FunctionType) else self.pos
+    def GetDims(self):
+        return self.dims() if isinstance(self.dims,  FunctionType) else self.dims
+    def HitTest(self,  mouse_pos):
+        x = mouse_pos[0]
+        y = mouse_pos[1]
+        pos = self.GetPos()
+        dims =self.GetDims()
+        x1 = pos[0]
+        x2 = pos[0]+ dims[0]
+        y1 = pos[1]
+        y2 = pos[1]+ dims[1]
+        if x >= x1 and x <= x2 and \
+           y >= y1 and y <= y2:
+            return True
+        else:
+            return False
 
 class View:
     def __init__(self):
         self.rect = None
         self.text = ''
         self.color=(255,255,255, 255*0.2)
+        self.boarder=2
+        self.boarder_color=(0,0,0,255)
+        self.children = dict([])
     def processEvents(self,  events):
         return
 
@@ -88,10 +90,26 @@ def filterEvents():
     return filteredEvents
 
 # lowlevel pygame rect
+def __draw_rect( 
+                      rect, 
+                      color = (0, 0, 0, 255 * 0.8),
+                      boarder = 2,
+                      boarder_color = (0,0,0,255)):
+    rect.topleft = (0, 0)
+    surf = pygame.Surface(rect.size, SRCALPHA)
+ 
+    surf.fill(boarder_color, pygame.Rect(0, 0, rect.width, rect.height))
+    surf.fill(
+              color, pygame.Rect(
+                                boarder, boarder, 
+                                rect.width - (boarder * 2), 
+                                rect.height - (boarder * 2)))
+    return surf
+
 def __draw_rounded_rect( 
                       rect, 
                       color = (0, 0, 0, 255 * 0.8),
-                      boarder = 5,
+                      boarder = 2,
                       boarder_color = (0,0,0,255),
                       corner = 5):
     rect.topleft = (0, 0)
@@ -129,8 +147,8 @@ def __draw_rounded_rect(
 
 def drawView(system, view):
     text = view.text
-    x, y = GetRectPos(view.rect)
-    w, h = GetRectDims(view.rect)
+    x, y = view.rect.GetPos()
+    w, h = view.rect.GetDims()
     color = view.color
     if (text != ''):
         surface = system.FONT.render(text, True, (255, 255, 255))
@@ -142,12 +160,16 @@ def drawView(system, view):
             new_width = w
             w_padding = (w/2) - round(surface_rect.width/2.0)
         rect = pygame.Rect(0, 0, new_width,  h)
-        rounded_surface = __draw_rounded_rect(rect, color)
-        rounded_surface.blit(surface, (w_padding, h_padding))
+        #rounded_surface = __draw_rounded_rect(rect, color)
+        #rounded_surface.blit(surface, (w_padding, h_padding))
+        rect_surface = __draw_rect(rect, color,  view.boarder,  view.boarder_color)
+        rect_surface.blit(surface, (w_padding, h_padding))
     else:
         rect = pygame.Rect(0, 0, w, h)
-        rounded_surface = __draw_rounded_rect(rect, color)
-    system.screen.blit(rounded_surface, (x, y))
+        #rounded_surface = __draw_rounded_rect(rect, color)
+        rect_surface = __draw_rect(rect, color,  view.boarder,  view.boarder_color)
+    #system.screen.blit(rounded_surface, (x, y))
+    system.screen.blit(rect_surface, (x, y))
 
 # ### end PyGame interface ###
 
@@ -155,9 +177,9 @@ def drawView(system, view):
 # processEvents acts on sg and builds and returns flat sg of views for rendering
 def processEvents(events,  sg):
     for (k, v) in sg.iteritems():
-        v[0].processEvents(events)
-        if (v[1] != []):
-            processEvents(events,  v[1])
+        v.processEvents(events)
+        if (len(v.children) > 0):
+            processEvents(events,  v.children)
 def render(system,  sg):
     clearScreen(system)
     clockTick(system)
@@ -165,9 +187,9 @@ def render(system,  sg):
     #f(sg)
     for (k, v) in sg.iteritems():
         #print k
-        drawView(system, v[0])
-        if (v[1] != []):
-            render(system,  v[1])
+        drawView(system, v)
+        if (len(v.children) > 0):
+            render(system,  v.children)
     updateScreen()
 # ### end Renderer ###
 
