@@ -8,6 +8,22 @@ class BaseView(View):
     def __init__ (self):
         View.__init__(self)
         self.lastx, self.lasty = (0, 0)
+        self.manage_mode = False 
+    def processEvents(self, events):
+        if len(self.children) == 0:
+            for event in events:
+                if event.type == pygame.KEYUP:
+                    if event.key == K_ESCAPE:
+                        self.boarder_color = (0, 0, 0,255)
+                        self.manage_mode = False
+                    elif event.key == K_m and not self.manage_mode:
+                        #188-143-143
+                        self.boarder_color = (188,143,143,255)
+                        self.manage_mode = True
+                    elif event.key == K_x and self.manage_mode:
+                        splitViewInX(self,  10)
+                    elif event.key == K_y and self.manage_mode:
+                        splitViewInY(self,  10)
 
 class XSlider(BaseView):
     def __init__(self):
@@ -78,12 +94,12 @@ class YSlider(BaseView):
 def splitViewInX(view,  slider_width):
     pos = view.rect.GetPos()
     dims = view.rect.GetDims()
-    v1 = View()
+    v1 = BaseView()
     v1r = Rect()
     v1r.pos = lambda: (pos[0], pos[1])
     v1r.dims = lambda: ((dims[0]/2)-(slider_width/2), dims[1]) #(395,  600)
     v1.rect = v1r
-    v2 = View()
+    v2 = BaseView()
     v2r = Rect()
     v2r.pos = lambda: ((dims[0]/2)+(slider_width/2), pos[1]) #(405, 0)
     v2r.dims = lambda: ((dims[0]/2)-(slider_width/2), dims[1]) #(395,  600)
@@ -102,12 +118,12 @@ def splitViewInX(view,  slider_width):
 def splitViewInY(view,  slider_width):
     pos = view.rect.GetPos()
     dims = view.rect.GetDims()
-    v1 = View()
+    v1 = BaseView()
     v1r = Rect()
     v1r.pos = lambda: (pos[0], pos[1])
     v1r.dims = lambda: (dims[0], (dims[1]/2)-(slider_width/2)) #(395,  600)
     v1.rect = v1r
-    v2 = View()
+    v2 = BaseView()
     v2r = Rect()
     v2r.pos = lambda: (pos[0],  (dims[1]/2)+(slider_width/2)) #(405, 0)
     v2r.dims = lambda: (dims[0], (dims[1]/2)-(slider_width/2)) #(395,  600)

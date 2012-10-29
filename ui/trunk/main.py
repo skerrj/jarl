@@ -10,7 +10,7 @@ SceneGraph = dict([])
 # ### init
 InitPyGame(DaSys)
 
-vTop = View()
+vTop = BaseView()
 r = Rect()
 r.pos = (0, 0)
 r.dims = (800,  600)
