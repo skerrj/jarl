@@ -9,14 +9,16 @@ class BaseView(View):
         View.__init__(self)
         self.lastx, self.lasty = (0, 0)
         self.manage_mode = False 
+        self.onTop = True
     def processEvents(self, events):
         if len(self.children) == 0:
             for event in events:
                 if event.type == pygame.KEYUP:
+                    print event.key, self.manage_mode, self.onTop
                     if event.key == K_ESCAPE:
                         self.boarder_color = (0, 0, 0,255)
                         self.manage_mode = False
-                    elif event.key == K_m and not self.manage_mode:
+                    elif event.key == K_m and not self.manage_mode and not self.onTop:
                         #188-143-143
                         self.boarder_color = (188,143,143,255)
                         self.manage_mode = True
@@ -92,6 +94,7 @@ class YSlider(BaseView):
         self.bottomView.rect.dims = (bottomVDims[0], bottomVDims[1]-dY)
 
 def splitViewInX(view,  slider_width):
+    view.onTop = False
     pos = view.rect.GetPos()
     dims = view.rect.GetDims()
     v1 = BaseView()
@@ -116,6 +119,7 @@ def splitViewInX(view,  slider_width):
     view.children['s1'] = slider
 
 def splitViewInY(view,  slider_width):
+    view.onTop = False
     pos = view.rect.GetPos()
     dims = view.rect.GetDims()
     v1 = BaseView()

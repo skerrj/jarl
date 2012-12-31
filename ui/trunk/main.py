@@ -20,7 +20,7 @@ vTop.rect = r
 SceneGraph['vTop']= vTop
 # #######################
 
-#splitViewInX(vTop, 10)
-splitViewInY(vTop, 10)
+splitViewInX(vTop, 10)
+#splitViewInY(vTop, 10)
 
 mainLoop(DaSys,  SceneGraph)
