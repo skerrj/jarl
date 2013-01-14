@@ -1,26 +1,21 @@
 #import pygrend
+from scenegraph import *
 from pygrend import *
 from widgets import *
+from view import *
 
-DaSys = System()
+renderer = Renderer()
 
-# sg[id]= (view, children)
-SceneGraph = dict([])
-
-# ### init
-InitPyGame(DaSys)
-
-vTop = BaseView()
+vTop = BaseView('vTop')
 r = Rect()
 r.pos = (0, 0)
 r.dims = (800,  600)
 vTop.rect = r
 
-# #######################
-SceneGraph['vTop']= vTop
-# #######################
+SCENEGRAPH.add(vTop)
 
-splitViewInX(vTop, 10)
+splitViewInX(vTop, 30)
 #splitViewInY(vTop, 10)
 
-mainLoop(DaSys,  SceneGraph)
+# run main loop
+renderer.mainLoop(SCENEGRAPH)
