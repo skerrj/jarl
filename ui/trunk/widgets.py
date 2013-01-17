@@ -2,8 +2,10 @@
 #
 #
 from view import *
+from darect import *
+import pygame
+from pygame.locals import * 
 
-# Views ####################### 
 class BaseView(View):
     def __init__ (self, name='aBaseView'):
         View.__init__(self, name)
@@ -99,21 +101,21 @@ def splitViewInX(view,  slider_width):
     pos = view.rect.GetPos()
     dims = view.rect.GetDims()
     v1 = BaseView(view.name + '-left')
-    v1r = Rect()
+    v1r = DaRect()
     v1r.pos = lambda: (pos[0], pos[1])
     v1r.dims = lambda: ((dims[0]/2)-(slider_width/2), dims[1]) #(395,  600)
     v1.rect = v1r
     v1.boarder = 5
     v1.boarder_color=(0,0,100,255)
     v2 = BaseView(view.name + '-right')
-    v2r = Rect()
+    v2r = DaRect()
     v2r.pos = lambda: ((dims[0]/2)+(slider_width/2), pos[1]) #(405, 0)
     v2r.dims = lambda: ((dims[0]/2)-(slider_width/2), dims[1]) #(395,  600)
     v2.rect = v2r
     v2.boarder = 5
     v2.boarder_color=(0,0,100,255)
     slider = XSlider(view.name + '-xslide')
-    sliderr = Rect()
+    sliderr = DaRect()
     sliderr.pos = lambda: ((dims[0]/2)-(slider_width/2), pos[1]) #(395, 0)
     sliderr.dims = lambda: (slider_width, dims[1]) #(10,  600)
     slider.rect = sliderr
@@ -124,6 +126,8 @@ def splitViewInX(view,  slider_width):
     view.addChild(v1)
     view.addChild(v2)
     view.addChild(slider)
+    global SCENEGRAPH
+    SCENEGRAPH.delete(view.name)
     #~ view.children['v1'] = v1
     #~ view.children['v2'] = v2
     #~ view.children['s1'] = slider
@@ -133,17 +137,17 @@ def splitViewInY(view,  slider_width):
     pos = view.rect.GetPos()
     dims = view.rect.GetDims()
     v1 = BaseView(view.name + '-top')
-    v1r = Rect()
+    v1r = DaRect()
     v1r.pos = lambda: (pos[0], pos[1])
     v1r.dims = lambda: (dims[0], (dims[1]/2)-(slider_width/2)) #(395,  600)
     v1.rect = v1r
     v2 = BaseView(view.name + '-bottom')
-    v2r = Rect()
+    v2r = DaRect()
     v2r.pos = lambda: (pos[0],  (dims[1]/2)+(slider_width/2)) #(405, 0)
     v2r.dims = lambda: (dims[0], (dims[1]/2)-(slider_width/2)) #(395,  600)
     v2.rect = v2r
     slider = YSlider(view.name + '-yslide')
-    sliderr = Rect()
+    sliderr = DaRect()
     sliderr.pos = lambda: (pos[0], (dims[1]/2)-(slider_width/2)) #(395, 0)
     sliderr.dims = lambda: (dims[0], slider_width) #(10,  600)
     slider.rect = sliderr
@@ -152,6 +156,8 @@ def splitViewInY(view,  slider_width):
     view.addChild(v1)
     view.addChild(v2)
     view.addChild(slider)
+    global SCENEGRAPH
+    SCENEGRAPH.delete(view.name)
     #~ view.children['v1'] = v1
     #~ view.children['v2'] = v2
     #~ view.children['s1'] = slider
